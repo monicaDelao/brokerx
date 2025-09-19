@@ -1,27 +1,19 @@
-# .github/workflows/ci.yml
-# Prérequis:
-# - VM: /opt/brokerx contient docker-compose.prod.yml + deploy.sh (chmod +x)
-# - Secrets GitHub: SSH_KEY (clé privée ed25519), VM_HOST=10.194.32.238, VM_USER=log430
-# - Settings → Actions → General → Workflow permissions: Read and write permissions
-
 name: ci
 on:
   push:
     branches: [ main ]
   pull_request:
 
-# éviter les runs parallèles inutiles
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
   contents: read
-  packages: write   # pour pousser l'image vers GHCR
+  packages: write   # nécessaire pour pousser sur GHCR
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}   # ex: monicaDelao/brokerx → ghcr.io/monicaDelao/brokerx:latest
 
 jobs:
   build_and_test:
@@ -44,8 +36,16 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: ${{ runner.os }}-gradle-
 
+      - name: Ensure gradlew is executable
+        run: chmod +x gradlew
+        working-directory: app
+
       - name: Tests (unit/integration)
-        run: ./app/gradlew -p app test --no-daemon --build-cache
+        run: ./gradlew test --no-daemon --build-cache
+        working-directory: app
+
+      - name: Compute lowercase image tag
+        run: echo "IMAGE_TAG=${{ env.REGISTRY }}/${GITHUB_REPOSITORY,,}:latest" >> $GITHUB_ENV
 
   build_and_push_image:
     needs: build_and_test
@@ -63,12 +63,12 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build & push image (GHCR)
+      - name: Build & push image (GHCR, lowercase tag)
         uses: docker/build-push-action@v6
         with:
           context: ./app
           push: true
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          tags: ${{ env.IMAGE_TAG }}
 
   deploy_to_vm:
     if: github.ref == 'refs/heads/main'
