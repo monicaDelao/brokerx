@@ -69,13 +69,18 @@ jobs:
     needs: build_and_push_image
     runs-on: ubuntu-latest
     steps:
-      - name: Configure SSH
+      - name: Prepare SSH
+        shell: bash
         run: |
-          install -m 700 -d ~/.ssh
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
           echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -H ${{ secrets.VM_HOST }} >> ~/.ssh/known_hosts
 
       - name: Remote deploy
+        shell: bash
         run: |
-          ssh -i ~/.ssh/id_ed25519 ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} 'cd /opt/brokerx && ./deploy.sh && docker compose -f docker-compose.prod.yml ps'
+          ssh -o StrictHostKeyChecking=yes -i ~/.ssh/id_ed25519 \
+            "${{ secrets.VM_USER }}@${{ secrets.VM_HOST }}" \
+            'cd /opt/brokerx && ./deploy.sh && docker compose -f docker-compose.prod.yml ps'
