@@ -62,36 +62,32 @@ jobs:
           context: ./app
           push: true
           tags: ${{ env.IMAGE_REF }}
-
-  deploy_to_vm:   # <— au même niveau que build_and_test / build_and_push_image
+  deploy_to_vm:
     if: github.ref == 'refs/heads/main'
     needs: build_and_push_image
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
+      # Charge la clé privée depuis le secret SSH_KEY
       - name: Start ssh-agent and add key
         uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{ secrets.SSH_KEY }}
           # ssh-passphrase: ${{ secrets.SSH_PASSPHRASE }}   # si ta clé a une passphrase
 
-      - name: Add VM host key
-        shell: bash
-        run: |
-          mkdir -p ~/.ssh
-          ssh-keyscan -H "${{ secrets.VM_HOST }}" >> ~/.ssh/known_hosts
-
+      # (Optionnel) Smoke test SSH
       - name: SSH smoke test
         shell: bash
         run: |
-          ssh -o StrictHostKeyChecking=yes \
-            "${{ secrets.VM_USER }}@${{ secrets.VM_HOST }}" \
-            'echo OK && hostname && whoami'
+          ssh -o StrictHostKeyChecking=accept-new \
+              "${{ secrets.VM_USER }}@${{ secrets.VM_HOST }}" \
+              'echo OK && hostname && whoami'
 
+      # Déploiement
       - name: Remote deploy
         shell: bash
         run: |
-          ssh -o StrictHostKeyChecking=yes \
-            "${{ secrets.VM_USER }}@${{ secrets.VM_HOST }}" \
-            'cd /opt/brokerx && ./deploy.sh && docker compose -f docker-compose.prod.yml ps'
+          ssh -o StrictHostKeyChecking=accept-new \
+              "${{ secrets.VM_USER }}@${{ secrets.VM_HOST }}" \
+              'cd /opt/brokerx && ./deploy.sh && docker compose -f docker-compose.prod.yml ps'
