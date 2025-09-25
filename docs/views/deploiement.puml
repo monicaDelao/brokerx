@@ -1,0 +1,44 @@
+@startuml
+' Titre du diagramme
+title Diagramme de Déploiement - BrokerX (Phase 1 - Monolithique)
+
+' Apparence du diagramme
+skinparam node {
+    borderColor #08427B
+    backgroundColor #EBF4FF
+    shadowing false
+}
+
+skinparam artifact {
+    borderColor #666666
+    backgroundColor #FFFFFF
+}
+
+' Définition du noeud principal : la Machine Virtuelle
+node "Machine Virtuelle (VM)" as VM {
+    
+    ' Définition du moteur d'exécution Docker
+    node "Docker Engine" as Docker {
+        
+        ' Conteneur de l'application BrokerX
+        node "Conteneur Application" as AppContainer {
+            artifact "brokerx-monolith.jar" as AppArtifact <<artifact>>
+        }
+        
+        ' Conteneur de la base de données
+        node "Conteneur Base de Données" as DBContainer {
+            artifact "PostgreSQL" as DBArtifact <<artifact>>
+        }
+        
+        ' Réseau interne Docker
+        AppContainer -- (DBContainer) : "Réseau Docker (JDBC)"
+    }
+}
+
+' Définition de l'acteur externe qui interagit avec le système
+actor "Architecte / Développeur" as Dev
+
+' L'architecte déploie et interagit avec la VM via SSH et Docker CLI
+Dev ..> VM : "SSH / docker-compose up"
+
+@enduml

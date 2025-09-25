@@ -1,0 +1,29 @@
+@startuml
+' Titre du diagramme
+title Diagramme de Cas d'Utilisation - BrokerX
+
+' Définition de l'acteur principal
+actor "Client" as client
+
+' Définition du système (frontière)
+rectangle "BrokerX" {
+  ' Définition des cas d'utilisation prioritaires
+  usecase "S'inscrire et vérifier son identité\n(UC-01)" as UC01
+  usecase "S'authentifier et MFA\n(UC-02)" as UC02
+  usecase "Placer un ordre (marché/limite) avec contrôles pré-trade\n(UC-05)" as UC05
+}
+
+' --- Relations entre l'acteur et les cas d'utilisation ---
+
+' Le client initie directement les trois cas d'utilisation
+client -- UC01
+client -- UC02
+client -- UC05
+
+' --- Relations entre les cas d'utilisation (optionnel mais pertinent) ---
+
+' Pour placer un ordre, il est impératif que le client soit authentifié.
+
+UC05 ..> UC02 : <<include>>
+
+@enduml

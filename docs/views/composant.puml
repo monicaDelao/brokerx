@@ -1,0 +1,67 @@
+@startuml
+' Titre du diagramme
+title Diagramme de Composants - Monolithe BrokerX (Style MVC)
+
+' Apparence du diagramme (optionnel, pour un meilleur rendu)
+skinparam componentStyle uml2
+skinparam linetype ortho
+
+' --- Définition du composant principal (le monolithe) ---
+package "Application Monolithique BrokerX" {
+
+  ' --- Définition des composants internes ---
+  
+  [Web Controller] as Controller
+  note bottom of Controller
+    Gère les requêtes HTTP entrantes (ex: /inscription, /login, /ordre).
+    Traduit les requêtes en appels de service.
+    Ne contient aucune logique métier.
+  end note
+
+  [Service Layer] as Service
+  note bottom of Service
+    Orchestre les cas d'utilisation (UC-01, 02, 05).
+    Contient la logique applicative et transactionnelle.
+    Ex: InscriptionClientService, PlacementOrdreService.
+  end note
+
+  [Domain Model] as Domain
+  note bottom of Domain
+    Représente le coeur métier de BrokerX.
+    Contient les entités (Client, Ordre, etc.),
+    les règles métier et les énumérations.
+  end note
+
+  [Data Access Objects (DAO)] as DAO
+  note bottom of DAO
+    Encapsule toute la logique de persistance.
+    Exécute les requêtes SQL directes
+    pour interagir avec la base de données.
+  end note
+
+}
+
+' --- Définition du composant externe (la base de données) ---
+database "Base de Données" as DB
+
+' --- Relations (Dépendances) entre les composants ---
+
+Controller ..> Service : utilise
+note on link: Le contrôleur invoque les services pour exécuter les actions.
+
+Service ..> Domain : utilise
+note on link: Le service manipule les objets du domaine.
+
+Service ..> DAO : utilise
+note on link: Le service utilise le DAO pour la persistance des données.
+
+DAO ..> DB : interagit via JDBC
+note on link: Le DAO envoie des requêtes SQL à la base de données.
+
+DAO ..> Domain : utilise
+note on link
+  Le DAO est responsable de mapper les données
+  relationnelles vers les objets du domaine (et vice-versa).
+end note
+
+@enduml

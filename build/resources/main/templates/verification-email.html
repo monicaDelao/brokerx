@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pageTitle}">Vérification Email - BrokerX</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        .logo {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+        
+        .step {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 10px;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .step.completed {
+            background: #4CAF50;
+        }
+        
+        .step.active {
+            background: #2196F3;
+        }
+        
+        .step.pending {
+            background: #ccc;
+        }
+        
+        .step-line {
+            width: 50px;
+            height: 2px;
+            background: #ddd;
+            margin-top: 14px;
+        }
+        
+        .email-icon {
+            font-size: 4em;
+            color: #2196F3;
+            margin-bottom: 20px;
+        }
+        
+        .message {
+            margin-bottom: 30px;
+            font-size: 1.1em;
+            line-height: 1.6;
+            color: #333;
+        }
+        
+        .email-display {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-weight: bold;
+            color: #2196F3;
+        }
+        
+        .token-form {
+            margin-bottom: 20px;
+        }
+        
+        .token-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1.2em;
+            text-align: center;
+            letter-spacing: 2px;
+            margin-bottom: 15px;
+        }
+        
+        .token-input:focus {
+            outline: none;
+            border-color: #2196F3;
+        }
+        
+        .verify-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #2196F3, #1976D2);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.2em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 15px;
+        }
+        
+        .verify-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(33, 150, 243, 0.3);
+        }
+        
+        .resend-btn {
+            background: none;
+            border: none;
+            color: #667eea;
+            text-decoration: underline;
+            cursor: pointer;
+            font-size: 1em;
+            margin-bottom: 20px;
+        }
+        
+        .resend-btn:hover {
+            color: #5a6fd8;
+        }
+        
+        .back-link {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            display: none;
+        }
+        
+        .success {
+            background: #e8f5e8;
+            color: #2e7d32;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            display: none;
+        }
+        
+        .loading {
+            display: none;
+            margin: 10px 0;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #2196F3;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 30px 20px;
+            }
+            
+            .step-indicator {
+                margin-bottom: 20px;
+            }
+            
+            .step {
+                width: 25px;
+                height: 25px;
+                font-size: 0.9em;
+            }
+            
+            .step-line {
+                width: 30px;
+                margin-top: 11px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">🏦 BrokerX</div>
+        <div class="subtitle">Vérification de l'adresse email</div>
+        
+        <div class="step-indicator">
+            <div class="step completed">1</div>
+            <div class="step-line"></div>
+            <div class="step active">2</div>
+            <div class="step-line"></div>
+            <div class="step pending">3</div>
+        </div>
+        
+        <div class="email-icon">📧</div>
+        
+        <div class="message">
+            <p>Un email de vérification a été envoyé à l'adresse :</p>
+            <div class="email-display" th:text="${email}">email@example.com</div>
+            <p>Saisissez le code de vérification reçu par email ci-dessous.</p>
+        </div>
+        
+        <div class="error" id="errorMessage"></div>
+        <div class="success" id="successMessage"></div>
+        <div class="loading" id="loadingIndicator">
+            <div class="spinner"></div>
+            <p>Vérification en cours...</p>
+        </div>
+        
+        <form class="token-form" method="post" th:action="@{/verification-email}">
+            <input type="hidden" name="sessionId" th:value="${sessionId}">
+            <input type="text" 
+                   name="codeVerification"
+                   id="tokenInput" 
+                   class="token-input" 
+                   placeholder="Code de vérification" 
+                   maxlength="32"
+                   required>
+            
+            <button type="submit" class="verify-btn">
+                 Vérifier l'email
+            </button>
+        </form>
+        
+        <button class="resend-btn" id="resendBtn">
+             Renvoyer l'email de vérification
+        </button>
+        
+        <div>
+            <a href="/" class="back-link">← Retour à l'accueil</a>
+        </div>
+    </div>
+    
+    <script>
+        // Récupération du sessionId depuis l'URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const sessionId = urlParams.get('sessionId');
+        
+        console.log('📋 SessionId trouvé dans verification-email:', sessionId);
+        
+        if (!sessionId) {
+            console.log('❌ Aucun sessionId trouvé, redirection vers inscription');
+            // Redirection si pas de sessionId
+            window.location.href = '/inscription';
+        }
+        
+        // Le formulaire utilise maintenant la soumission Spring standard - pas de JavaScript complexe nécessaire
+        
+        // Gestion du bouton "Renvoyer l'email"
+        document.getElementById('resendBtn').addEventListener('click', function() {
+            showLoading(true);
+            hideMessages();
+            
+            fetch('/api/resend-email', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `email=${encodeURIComponent(email)}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                showLoading(false);
+                
+                if (data.success) {
+                    showSuccess('Email de vérification renvoyé avec succès');
+                } else {
+                    showError(data.message);
+                }
+            })
+            .catch(error => {
+                showLoading(false);
+                console.error('Erreur:', error);
+                showError('Une erreur est survenue lors du renvoi de l\'email');
+            });
+        });
+        
+        // Vérification automatique si le token est présent dans l'URL (lien email)
+        const token = urlParams.get('token');
+        if (token) {
+            document.getElementById('tokenInput').value = token;
+            document.getElementById('verificationForm').dispatchEvent(new Event('submit'));
+        }
+        
+        // Fonctions utilitaires
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+        
+        function showSuccess(message) {
+            const successDiv = document.getElementById('successMessage');
+            successDiv.textContent = message;
+            successDiv.style.display = 'block';
+        }
+        
+        function showLoading(show) {
+            document.getElementById('loadingIndicator').style.display = show ? 'block' : 'none';
+        }
+        
+        function hideMessages() {
+            document.getElementById('errorMessage').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pageTitle}">Vérifiez votre email - BrokerX</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        .header {
+            margin-bottom: 30px;
+        }
+        
+        .logo {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 1.1em;
+        }
+        
+        .success-icon {
+            font-size: 4em;
+            color: #4CAF50;
+            margin-bottom: 20px;
+        }
+        
+        .main-message {
+            font-size: 1.3em;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        
+        .instructions {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: left;
+            border-radius: 5px;
+        }
+        
+        .instructions h3 {
+            color: #495057;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .instructions h3::before {
+            content: "📧";
+            margin-right: 10px;
+        }
+        
+        .instructions ol {
+            margin-left: 20px;
+            color: #6c757d;
+            line-height: 1.6;
+        }
+        
+        .instructions li {
+            margin-bottom: 10px;
+        }
+        
+        .warning-box {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+            color: #856404;
+        }
+        
+        .warning-box h4 {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .warning-box h4::before {
+            content: "⚠️";
+            margin-right: 10px;
+        }
+        
+        .email-display {
+            background: #e3f2fd;
+            border: 1px solid #90caf9;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+            font-family: monospace;
+            font-size: 1.1em;
+            color: #1976d2;
+        }
+        
+        .action-buttons {
+            margin-top: 30px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #495057;
+            border: 1px solid #dee2e6;
+        }
+        
+        .btn-secondary:hover {
+            background: #e9ecef;
+        }
+        
+        .help-links {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #dee2e6;
+        }
+        
+        .help-links h4 {
+            color: #495057;
+            margin-bottom: 15px;
+        }
+        
+        .help-links a {
+            color: #667eea;
+            text-decoration: none;
+            margin: 0 15px;
+        }
+        
+        .help-links a:hover {
+            text-decoration: underline;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 30px 20px;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">🏦 BrokerX</div>
+            <div class="subtitle">Plateforme de Courtage</div>
+        </div>
+        
+        <div class="success-icon">✅</div>
+        
+        <h1 class="main-message">Inscription initiée avec succès !</h1>
+        
+        <p style="color: #6c757d; margin-bottom: 25px;">
+            Votre compte a été créé et nous avons envoyé un email de vérification à votre adresse.
+        </p>
+        
+        <div class="email-display" th:if="${email}">
+            📧 <span th:text="${email}">votre-email@example.com</span>
+        </div>
+        
+        <div class="instructions">
+            <h3>Prochaines étapes pour confirmer votre identité</h3>
+            <ol>
+                <li><strong>Vérifiez votre boîte de réception</strong> - Un email de BrokerX vous attend</li>
+                <li><strong>Ouvrez l'email</strong> et cliquez sur le lien de vérification</li>
+                <li><strong>Saisissez le code de vérification</strong> si demandé</li>
+                <li><strong>Confirmez votre numéro de téléphone</strong> (si fourni) via SMS</li>
+                <li><strong>Accédez à votre compte</strong> une fois la vérification complète</li>
+            </ol>
+        </div>
+        
+        <div class="warning-box">
+            <h4>Email non reçu ?</h4>
+            <ul style="margin-left: 20px; margin-top: 10px;">
+                <li>Vérifiez vos <strong>spams/courriers indésirables</strong></li>
+                <li>Attendez quelques minutes (délai de livraison)</li>
+                <li>Vérifiez que l'adresse email est correcte</li>
+            </ul>
+        </div>
+        
+        <div class="action-buttons">
+            <a th:href="@{'/verification-email-session?sessionId=' + ${sessionId}}" class="btn btn-primary">
+                📧 Saisir le code de vérification
+            </a>
+            <a href="/inscription" class="btn btn-secondary">
+                ↺ Recommencer l'inscription
+            </a>
+        </div>
+        
+        <div class="help-links">
+            <h4>Besoin d'aide ?</h4>
+            <a href="/contact">💬 Support client</a>
+            <a href="/faq">❓ Questions fréquentes</a>
+            <a href="/">🏠 Retour à l'accueil</a>
+        </div>
+    </div>
+    
+    <script>
+        // Vérifier le sessionId au chargement de la page
+        document.addEventListener('DOMContentLoaded', function() {
+            const sessionId = new URLSearchParams(window.location.search).get('sessionId');
+            console.log('📋 SessionId trouvé dans URL:', sessionId);
+            
+            // Vérifier que le bouton a le bon lien
+            const btn = document.querySelector('a[href*="verification-email"]');
+            if (btn) {
+                console.log('🔗 Lien du bouton:', btn.href);
+            }
+        });
+        
+        // Auto-redirect vers la page de vérification après 30 secondes
+        setTimeout(function() {
+            const sessionId = new URLSearchParams(window.location.search).get('sessionId');
+            if (sessionId) {
+                console.log('Redirection automatique vers la vérification...');
+                // Optionnel: décommenter pour redirection auto
+                // window.location.href = '/verification-email?sessionId=' + sessionId;
+            }
+        }, 30000);
+        
+        // Message de confirmation au chargement
+        console.log('📧 Email de vérification envoyé ! Vérifiez votre boîte de réception.');
+    </script>
+</body>
+</html>

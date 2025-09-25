@@ -1,0 +1,87 @@
+@startuml
+' Titre du diagramme
+title Modèle de Domaine - BrokerX (UC-01, UC-02, UC-05)
+
+' Apparence du diagramme (optionnel, pour un meilleur rendu)
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+
+' --- Définition des Énumérations ---
+enum StatutCompte {
+  Pending
+  Active
+  Rejected
+}
+
+enum StatutOrdre {
+  Actif
+  Execute
+  Annule
+}
+
+enum SensOrdre {
+  Achat
+  Vente
+}
+
+enum TypeOrdre {
+  Marche
+  Limite
+}
+
+enum DureeOrdre {
+    DAY
+    IOC
+}
+
+' --- Définition des Classes (Entités du Domaine) ---
+
+class Client {
+  ClientID
+  Nom
+  Adresse
+  Email
+  MotDePasseHash 
+}
+
+class CompteDeCourtage {
+  CompteID
+  SoldeDisponible
+  Devise
+}
+
+class Portefeuille {
+  PortefeuilleID
+}
+
+class Position {
+  Symbole
+  Quantite
+}
+
+class Ordre {
+  OrdreID  
+  Symbole
+  Quantite
+  PrixLimite
+  HorodatageUTC
+}
+
+' --- Associations entre les Classes ---
+
+Client "1" -- "1" CompteDeCourtage : possède >
+Client "1" -- "1" Portefeuille : possède >
+Client "1" -- "0..*" Ordre : place >
+
+Portefeuille "1" -- "0..*" Position : contient >
+CompteDeCourtage "1" -- "0..*" Ordre : finance <
+
+' --- Associations avec les Énumérations ---
+Client .. StatutCompte
+Ordre .. StatutOrdre
+Ordre .. SensOrdre
+Ordre .. TypeOrdre
+Ordre .. DureeOrdre
+
+
+@enduml

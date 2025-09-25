@@ -1,0 +1,60 @@
+@startuml
+title Diagramme d'Activité - Placement d'un Ordre (UC-05)
+
+|Client|
+start
+:Renseigner les détails de l'ordre
+(symbole, sens, type, quantité, prix limite);
+:Soumettre l'ordre;
+
+|Système BrokerX|
+partition "Validation et Contrôles Pré-Trade" {
+    :Recevoir et normaliser la requête d'ordre;
+    :Vérifier l'idempotence (ClientOrderId);
+    if (Ordre déjà traité ?) then (Oui)
+        :Renvoyer la réponse précédente;
+        stop
+    endif
+    
+    :Valider les paramètres de l'ordre
+    (quantité > 0, symbole actif, etc.);
+    if (Paramètres valides ?) then (Non)
+        :Rejeter l'ordre avec motif "Invalide";
+        |Client|
+        :Recevoir la notification de rejet;
+        stop
+    endif
+    
+    :Vérifier le pouvoir d'achat du client
+    (SoldeDisponible dans CompteDeCourtage);
+    if (Fonds suffisants ?) then (Non)
+        :Rejeter l'ordre avec motif "Fonds insuffisants";
+        |Client|
+        :Recevoir la notification de rejet;
+        stop
+    endif
+}
+
+partition "Traitement de l'Ordre" {
+    ' Utilisation d'une fourche pour montrer les actions parallèles
+    fork
+        :Bloquer les fonds nécessaires
+        dans le CompteDeCourtage;
+    fork again
+        :Générer un OrderID unique;
+    end fork
+    
+    :Persister l'ordre dans la base de données
+    avec le statut "Actif";
+    note right: L'ensemble du bloc (blocage + persistance)
+    
+    :Acheminer l'ordre vers le moteur d'appariement interne;
+    
+    :Confirmer l'acceptation de l'ordre (ACK);
+}
+
+|Client|
+:Recevoir la confirmation (ACK) de l'ordre;
+stop
+
+@enduml

@@ -1,0 +1,60 @@
+services:
+  # Application BrokerX Web Interface
+  brokerx-web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: brokerx-web
+    environment:
+      # Configuration application web
+      APP_ENV: "web"
+      LOG_LEVEL: "INFO"
+      JAVA_OPTS: "-Xmx256m -Xms128m -XX:+UseG1GC"
+      
+      # Configuration seed data
+      DB_SEED: "true"
+    volumes:
+      - app_data:/app/data
+      - app_logs:/app/logs
+    ports:
+      - "8080:8080"
+    networks:
+      - brokerx-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Console interactive pour UC-01 (mode développement)
+  brokerx-console:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: brokerx-console
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DB_URL: "jdbc:postgresql://postgres:5432/brokerx"
+      DB_USER: "brokerx_user"
+      DB_PASSWORD: "brokerx_pass"
+      APP_ENV: "console"
+    ports:
+      - "8080:8080"
+    networks:
+      - brokerx-network
+    restart: unless-stopped
+
+# Réseau pour l'application web
+networks:
+  brokerx-network:
+    driver: bridge
+    name: brokerx-network

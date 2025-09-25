@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pageTitle}">Inscription Réussie - BrokerX</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            animation: slideUp 0.6s ease-out;
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .logo {
+            font-size: 2em;
+            font-weight: bold;
+            color: #4CAF50;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        
+        .success-icon {
+            font-size: 5em;
+            color: #4CAF50;
+            margin-bottom: 20px;
+            animation: bounce 0.6s ease-out 0.3s both;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 53%, 80%, 100% {
+                animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);
+                transform: translate3d(0,0,0);
+            }
+            40%, 43% {
+                animation-timing-function: cubic-bezier(0.755, 0.050, 0.855, 0.060);
+                transform: translate3d(0, -10px, 0);
+            }
+            70% {
+                animation-timing-function: cubic-bezier(0.755, 0.050, 0.855, 0.060);
+                transform: translate3d(0, -5px, 0);
+            }
+            90% {
+                transform: translate3d(0, -2px, 0);
+            }
+        }
+        
+        .success-title {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #4CAF50;
+            margin-bottom: 15px;
+        }
+        
+        .success-message {
+            font-size: 1.1em;
+            color: #333;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+        
+        .completion-summary {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: left;
+        }
+        
+        .completion-summary h3 {
+            color: #4CAF50;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .step-completed {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .step-completed .check {
+            color: #4CAF50;
+            font-weight: bold;
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+        
+        .benefits {
+            background: #e8f5e8;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: left;
+        }
+        
+        .benefits h3 {
+            color: #2e7d32;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .benefit-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            color: #2e7d32;
+        }
+        
+        .benefit-item .icon {
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+        
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .primary-btn {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.2em;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .primary-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(76, 175, 80, 0.3);
+        }
+        
+        .secondary-btn {
+            padding: 12px 25px;
+            background: transparent;
+            color: #4CAF50;
+            border: 2px solid #4CAF50;
+            border-radius: 15px;
+            font-size: 1.1em;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .secondary-btn:hover {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .footer-info {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 20px;
+        }
+        
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #4CAF50;
+            animation: confetti-fall 3s linear infinite;
+        }
+        
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(-100vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 30px 20px;
+            }
+            
+            .success-icon {
+                font-size: 4em;
+            }
+            
+            .success-title {
+                font-size: 1.5em;
+            }
+            
+            .action-buttons {
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">🏦 BrokerX</div>
+        <div class="subtitle">Plateforme de Courtage Sécurisée</div>
+        
+        <div class="success-icon">🎉</div>
+        
+        <h1 class="success-title">Inscription Réussie !</h1>
+        
+        <div class="success-message">
+            Félicitations ! Votre compte BrokerX a été créé avec succès. 
+            Toutes les étapes de sécurité ont été validées conformément au processus UC-01.
+        </div>
+        
+        <div class="completion-summary">
+            <h3>📋 Étapes Complétées</h3>
+            <div class="step-completed">
+                <span class="check">✅</span>
+                <span>Informations personnelles validées</span>
+            </div>
+            <div class="step-completed">
+                <span class="check">✅</span>
+                <span>Adresse email vérifiée</span>
+            </div>
+            <div class="step-completed">
+                <span class="check">✅</span>
+                <span>Code de vérification confirmé</span>
+            </div>
+            <div class="step-completed">
+                <span class="check">✅</span>
+                <span>Compte activé et sécurisé</span>
+            </div>
+        </div>
+        
+        <div class="benefits">
+            <h3>🌟 Avantages de votre compte BrokerX</h3>
+            <div class="benefit-item">
+                <span class="icon">🔐</span>
+                <span>Sécurité avec vérification email</span>
+            </div>
+            <div class="benefit-item">
+                <span class="icon">📈</span>
+                <span>Accès aux marchés financiers en temps réel</span>
+            </div>
+            <div class="benefit-item">
+                <span class="icon">💼</span>
+                <span>Gestion de portefeuille professionnel</span>
+            </div>
+            <div class="benefit-item">
+                <span class="icon">📱</span>
+                <span>Interface web et mobile optimisée</span>
+            </div>
+            <div class="benefit-item">
+                <span class="icon">🎯</span>
+                <span>Outils d'analyse et de trading avancés</span>
+            </div>
+        </div>
+        
+        <div class="action-buttons">
+            <a href="/connexion" class="primary-btn">
+                🚀 Se connecter à mon compte
+            </a>
+            
+            <a href="/" class="secondary-btn">
+                🏠 Retour à l'accueil
+            </a>
+        </div>
+        
+        <div class="footer-info">
+            <p><strong>Prochaines étapes :</strong></p>
+            <p>• Connectez-vous avec vos identifiants</p>
+            <p>• Explorez votre tableau de bord</p>
+            <p>• Configurez vos préférences de trading</p>
+        </div>
+    </div>
+    
+    <script>
+        // Animation de confettis
+        function createConfetti() {
+            const colors = ['#4CAF50', '#45a049', '#66BB6A', '#81C784', '#A5D6A7'];
+            
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.animationDelay = Math.random() * 3 + 's';
+                confetti.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                document.body.appendChild(confetti);
+                
+                // Supprimer le confetti après l'animation
+                setTimeout(() => {
+                    confetti.remove();
+                }, 5000);
+            }
+        }
+        
+        // Démarrer l'animation de confettis au chargement
+        window.addEventListener('load', () => {
+            setTimeout(createConfetti, 500);
+        });
+        
+        // Message de bienvenue dans la console
+        console.log(`
+        🎉 Bienvenue sur BrokerX ! 🎉
+        
+        Votre inscription UC-01 a été complétée avec succès.
+        Toutes les étapes de sécurité ont été validées :
+        ✅ Validation des données personnelles
+        ✅ Vérification de l'adresse email
+        ✅ Authentification à double facteur (2FA)
+        ✅ Confirmation par code OTP SMS
+        
+        Votre compte est maintenant actif et sécurisé.
+        `);
+    </script>
+</body>
+</html>

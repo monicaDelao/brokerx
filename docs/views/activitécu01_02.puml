@@ -1,0 +1,72 @@
+@startuml
+title Diagramme d'Activité - Inscription (UC-01) et Authentification (UC-02)
+
+|Client|
+start
+:Saisir informations d'inscription
+(nom, email, mot de passe);
+
+|Système BrokerX|
+:Valider le format des données;
+if (Format valide ?) then (Oui)
+  :Vérifier si l'email existe déjà;
+  if (Email existant ?) then (Oui)
+    |Client|
+    :Afficher erreur "Compte déjà existant";
+    :Proposer la récupération du compte;
+    stop
+  else (Non)
+    |Système BrokerX|
+    :Créer un compte avec statut "Pending";
+    :Générer et envoyer un lien de vérification;
+    
+    |Client|
+    :Cliquer sur le lien de vérification;
+    
+    |Système BrokerX|
+    :Valider le lien;
+    if (Lien valide ?) then (Oui)
+      :Mettre à jour le statut du compte à "Active";
+      :Journaliser l'activation (audit trail);
+      note right: Fin de l'UC-01
+    else (Non)
+       :Afficher erreur "Lien invalide ou expiré";
+       stop
+    endif
+  endif
+else (Non)
+  |Client|
+  :Afficher erreur "Format des données invalide";
+  stop
+endif
+
+' --- Début de l'authentification (UC-02) ---
+|Client|
+:Saisir email et mot de passe;
+
+|Système BrokerX|
+:Valider les identifiants;
+if (Identifiants valides ?) then (Oui)
+    if (MFA activé ?) then (Oui)
+        :Demander le code MFA;
+        |Client|
+        :Saisir le code MFA;
+        |Système BrokerX|
+        :Valider le code MFA;
+        if (Code valide ?) then (Non)
+            :Afficher erreur "Code MFA invalide";
+            stop
+        endif
+    endif
+    :Émettre un jeton de session (ex: JWT);
+    :Journaliser la connexion réussie (audit trail);
+    |Client|
+    :Accéder à la plateforme;
+    stop
+else (Non)
+    |Client|
+    :Afficher erreur "Identifiants invalides";
+    stop
+endif
+
+@enduml

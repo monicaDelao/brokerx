@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pageTitle}">Vérification OTP - BrokerX</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        .logo {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+        
+        .step {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 10px;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .step.completed {
+            background: #4CAF50;
+        }
+        
+        .step.active {
+            background: #FF5722;
+        }
+        
+        .step.pending {
+            background: #ccc;
+        }
+        
+        .step-line {
+            width: 50px;
+            height: 2px;
+            background: #4CAF50;
+            margin-top: 14px;
+        }
+        
+        .sms-icon {
+            font-size: 4em;
+            color: #FF5722;
+            margin-bottom: 20px;
+        }
+        
+        .message {
+            margin-bottom: 30px;
+            font-size: 1.1em;
+            line-height: 1.6;
+            color: #333;
+        }
+        
+        .phone-display {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-weight: bold;
+            color: #FF5722;
+        }
+        
+        .otp-form {
+            margin-bottom: 20px;
+        }
+        
+        .otp-inputs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .otp-input {
+            width: 50px;
+            height: 50px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1.5em;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .otp-input:focus {
+            outline: none;
+            border-color: #FF5722;
+        }
+        
+        .verify-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #FF5722, #E64A19);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.2em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 15px;
+        }
+        
+        .verify-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(255, 87, 34, 0.3);
+        }
+        
+        .verify-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .resend-btn {
+            background: none;
+            border: none;
+            color: #667eea;
+            text-decoration: underline;
+            cursor: pointer;
+            font-size: 1em;
+            margin-bottom: 20px;
+        }
+        
+        .resend-btn:hover {
+            color: #5a6fd8;
+        }
+        
+        .resend-btn:disabled {
+            color: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .countdown {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+        
+        .back-link {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            display: none;
+        }
+        
+        .success {
+            background: #e8f5e8;
+            color: #2e7d32;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            display: none;
+        }
+        
+        .loading {
+            display: none;
+            margin: 10px 0;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #FF5722;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .security-info {
+            background: #fff3e0;
+            border: 1px solid #ffcc02;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        
+        .security-info h4 {
+            color: #e65100;
+            margin-bottom: 10px;
+        }
+        
+        .security-info ul {
+            color: #bf360c;
+            margin-left: 20px;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 30px 20px;
+            }
+            
+            .otp-inputs {
+                gap: 5px;
+            }
+            
+            .otp-input {
+                width: 45px;
+                height: 45px;
+                font-size: 1.3em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">🏦 BrokerX</div>
+        <div class="subtitle">Authentification à double facteur (2FA)</div>
+        
+        <div class="step-indicator">
+            <div class="step completed">1</div>
+            <div class="step-line"></div>
+            <div class="step completed">2</div>
+            <div class="step-line"></div>
+            <div class="step active">3</div>
+        </div>
+        
+        <div class="sms-icon">📱</div>
+        
+        <div class="message">
+            <p>Un code de vérification à 6 chiffres a été envoyé par SMS au numéro :</p>
+            <div class="phone-display" id="phoneDisplay">+33 * ** ** ** **</div>
+        </div>
+        
+        <div class="security-info">
+            <h4>🔐 Sécurité renforcée</h4>
+            <ul>
+                <li>Code valide pendant 5 minutes</li>
+                <li>3 tentatives maximum</li>
+                <li>Nouveau code après expiration</li>
+            </ul>
+        </div>
+        
+        <div class="error" id="errorMessage"></div>
+        <div class="success" id="successMessage"></div>
+        <div class="loading" id="loadingIndicator">
+            <div class="spinner"></div>
+            <p>Vérification en cours...</p>
+        </div>
+        
+        <form class="otp-form" id="otpForm">
+            <div class="otp-inputs">
+                <input type="text" class="otp-input" maxlength="1" id="otp1">
+                <input type="text" class="otp-input" maxlength="1" id="otp2">
+                <input type="text" class="otp-input" maxlength="1" id="otp3">
+                <input type="text" class="otp-input" maxlength="1" id="otp4">
+                <input type="text" class="otp-input" maxlength="1" id="otp5">
+                <input type="text" class="otp-input" maxlength="1" id="otp6">
+            </div>
+            
+            <button type="submit" class="verify-btn" id="verifyBtn">
+                ✅ Vérifier le code
+            </button>
+        </form>
+        
+        <div class="countdown" id="countdown"></div>
+        
+        <button class="resend-btn" id="resendBtn">
+            🔄 Renvoyer le code SMS
+        </button>
+        
+        <div>
+            <a th:href="@{'/verification-email?sessionId=' + ${sessionId}}" class="back-link">← Retour à la vérification email</a>
+        </div>
+    </div>
+    
+    <script>
+        // Récupération de l'email depuis l'URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const email = urlParams.get('email');
+        
+        if (!email) {
+            window.location.href = '/';
+        }
+        
+        // Variables pour le countdown
+        let countdownInterval;
+        let remainingTime = 300; // 5 minutes en secondes
+        let attemptCount = 0;
+        const maxAttempts = 3;
+        
+        // Initialisation du countdown
+        startCountdown();
+        
+        // Gestion des inputs OTP
+        const otpInputs = document.querySelectorAll('.otp-input');
+        otpInputs.forEach((input, index) => {
+            input.addEventListener('input', function() {
+                // Ne garder que les chiffres
+                this.value = this.value.replace(/[^0-9]/g, '');
+                
+                // Passer au champ suivant si rempli
+                if (this.value && index < otpInputs.length - 1) {
+                    otpInputs[index + 1].focus();
+                }
+                
+                // Activer/désactiver le bouton de vérification
+                updateVerifyButton();
+            });
+            
+            input.addEventListener('keydown', function(e) {
+                // Revenir au champ précédent avec Backspace
+                if (e.key === 'Backspace' && !this.value && index > 0) {
+                    otpInputs[index - 1].focus();
+                }
+            });
+            
+            // Permettre de coller un code complet
+            input.addEventListener('paste', function(e) {
+                e.preventDefault();
+                const pastedText = (e.clipboardData || window.clipboardData).getData('text');
+                const digits = pastedText.replace(/[^0-9]/g, '').substring(0, 6);
+                
+                for (let i = 0; i < digits.length && i < otpInputs.length; i++) {
+                    otpInputs[i].value = digits[i];
+                }
+                
+                updateVerifyButton();
+            });
+        });
+        
+        // Gestion du formulaire OTP
+        document.getElementById('otpForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const otp = Array.from(otpInputs).map(input => input.value).join('');
+            
+            if (otp.length !== 6) {
+                showError('Veuillez saisir le code complet à 6 chiffres');
+                return;
+            }
+            
+            if (attemptCount >= maxAttempts) {
+                showError('Nombre maximum de tentatives atteint. Veuillez demander un nouveau code.');
+                return;
+            }
+            
+            attemptCount++;
+            showLoading(true);
+            hideMessages();
+            
+            // Appel API pour vérifier l'OTP
+            fetch('/api/verify-otp', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `email=${encodeURIComponent(email)}&otp=${encodeURIComponent(otp)}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                showLoading(false);
+                
+                if (data.success) {
+                    clearInterval(countdownInterval);
+                    showSuccess('🎉 ' + data.message);
+                    setTimeout(() => {
+                        window.location.href = '/inscription/succes';
+                    }, 2000);
+                } else {
+                    showError(`${data.message} (Tentative ${attemptCount}/${maxAttempts})`);
+                    
+                    if (attemptCount >= maxAttempts) {
+                        document.getElementById('verifyBtn').disabled = true;
+                        showError('Nombre maximum de tentatives atteint. Demandez un nouveau code.');
+                    }
+                    
+                    // Vider les champs en cas d'erreur
+                    otpInputs.forEach(input => input.value = '');
+                    otpInputs[0].focus();
+                    updateVerifyButton();
+                }
+            })
+            .catch(error => {
+                showLoading(false);
+                console.error('Erreur:', error);
+                showError('Une erreur est survenue lors de la vérification');
+            });
+        });
+        
+        // Gestion du bouton "Renvoyer le code"
+        document.getElementById('resendBtn').addEventListener('click', function() {
+            showLoading(true);
+            hideMessages();
+            
+            fetch('/api/resend-otp', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `email=${encodeURIComponent(email)}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                showLoading(false);
+                
+                if (data.success) {
+                    showSuccess('Nouveau code SMS envoyé avec succès');
+                    
+                    // Réinitialiser le countdown et les tentatives
+                    remainingTime = 300;
+                    attemptCount = 0;
+                    startCountdown();
+                    
+                    // Réactiver le bouton de vérification
+                    document.getElementById('verifyBtn').disabled = false;
+                    
+                    // Vider les champs
+                    otpInputs.forEach(input => input.value = '');
+                    otpInputs[0].focus();
+                    updateVerifyButton();
+                } else {
+                    showError(data.message);
+                }
+            })
+            .catch(error => {
+                showLoading(false);
+                console.error('Erreur:', error);
+                showError('Une erreur est survenue lors du renvoi du code');
+            });
+        });
+        
+        // Fonctions utilitaires
+        function startCountdown() {
+            const countdownElement = document.getElementById('countdown');
+            const resendBtn = document.getElementById('resendBtn');
+            
+            countdownInterval = setInterval(() => {
+                const minutes = Math.floor(remainingTime / 60);
+                const seconds = remainingTime % 60;
+                
+                countdownElement.textContent = `Code valide encore ${minutes}:${seconds.toString().padStart(2, '0')}`;
+                
+                if (remainingTime <= 0) {
+                    clearInterval(countdownInterval);
+                    countdownElement.textContent = 'Code expiré - Demandez un nouveau code';
+                    resendBtn.disabled = false;
+                    document.getElementById('verifyBtn').disabled = true;
+                } else {
+                    resendBtn.disabled = remainingTime > 30; // Permettre de renvoyer après 30 secondes
+                }
+                
+                remainingTime--;
+            }, 1000);
+        }
+        
+        function updateVerifyButton() {
+            const otp = Array.from(otpInputs).map(input => input.value).join('');
+            const verifyBtn = document.getElementById('verifyBtn');
+            
+            if (remainingTime <= 0 || attemptCount >= maxAttempts) {
+                verifyBtn.disabled = true;
+            } else {
+                verifyBtn.disabled = otp.length !== 6;
+            }
+        }
+        
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+        
+        function showSuccess(message) {
+            const successDiv = document.getElementById('successMessage');
+            successDiv.textContent = message;
+            successDiv.style.display = 'block';
+        }
+        
+        function showLoading(show) {
+            document.getElementById('loadingIndicator').style.display = show ? 'block' : 'none';
+        }
+        
+        function hideMessages() {
+            document.getElementById('errorMessage').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'none';
+        }
+        
+        // Focus sur le premier champ au chargement
+        otpInputs[0].focus();
+    </script>
+</body>
+</html>
