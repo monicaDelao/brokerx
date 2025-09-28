@@ -34,9 +34,7 @@ services:
       dockerfile: Dockerfile
     container_name: brokerx-web
     depends_on:
-      mysql:
-        condition: service_healthy
-        required: false
+      - mysql
     environment:
       # Configuration application web
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-docker}
