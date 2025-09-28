@@ -1,24 +1,55 @@
 version: '3.8'
 
 services:
-  # Application BrokerX Web Interface avec base H2 embarquée
+  # Base de données MySQL pour production
+  mysql:
+    image: mysql:8.0
+    container_name: brokerx-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-brokerx_root_2024!}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-brokerx_db}
+      MYSQL_USER: ${MYSQL_USER:-brokerx_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-brokerx_pass_2024!}
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./db-init:/docker-entrypoint-initdb.d:ro
+    ports:
+      - "3306:3306"
+    networks:
+      - brokerx-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-brokerx_root_2024!}"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    profiles:
+      - production
+
+  # Application BrokerX Web Interface
   brokerx-web:
     build:
       context: .
       dockerfile: Dockerfile
     container_name: brokerx-web
+    depends_on:
+      mysql:
+        condition: service_healthy
+        required: false
     environment:
       # Configuration application web
-      SPRING_PROFILES_ACTIVE: "docker"
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-docker}
       SERVER_PORT: "8081"
       LOG_LEVEL: "INFO"
       JAVA_OPTS: "-Xmx512m -Xms256m -XX:+UseG1GC"
       
-      # Configuration H2 Database embarquée
-      SPRING_DATASOURCE_URL: "jdbc:h2:file:/app/data/brokerx;DB_CLOSE_ON_EXIT=FALSE;AUTO_RECONNECT=TRUE"
-      SPRING_DATASOURCE_USERNAME: "brokerx"
-      SPRING_DATASOURCE_PASSWORD: "brokerx"
-      SPRING_H2_CONSOLE_ENABLED: "true"
+      # Configuration Database (H2 par défaut, MySQL en production)
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL:-jdbc:h2:file:/app/data/brokerx;DB_CLOSE_ON_EXIT=FALSE;AUTO_RECONNECT=TRUE}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME:-brokerx}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD:-brokerx}
+      SPRING_H2_CONSOLE_ENABLED: ${SPRING_H2_CONSOLE_ENABLED:-true}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: ${SPRING_JPA_HIBERNATE_DDL_AUTO:-update}
       
       # Seed data activé
       DB_SEED: "true"
@@ -37,11 +68,38 @@ services:
       start_period: 60s
     restart: unless-stopped
 
+  # Reverse Proxy Nginx pour production
+  nginx:
+    image: nginx:alpine
+    container_name: brokerx-nginx
+    restart: unless-stopped
+    depends_on:
+      - brokerx-web
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - nginx_logs:/var/log/nginx
+    networks:
+      - brokerx-network
+    healthcheck:
+      test: ["CMD", "nginx", "-t"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    profiles:
+      - production
+
 # Volumes persistants pour les données
 volumes:
   brokerx_data:
     driver: local
   brokerx_logs:
+    driver: local
+  mysql_data:
+    driver: local
+  nginx_logs:
     driver: local
 
 # Réseau pour la communication inter-services

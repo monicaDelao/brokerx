@@ -1,0 +1,270 @@
+name: CD - Continuous Deployment
+
+on:
+  # Déclenchement après succès de la CI
+  workflow_run:
+    workflows: ["CI"]
+    types:
+      - completed
+    branches: [main]
+  
+  # Déclenchement manuel pour les déploiements
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment de déploiement'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+        - dev
+        - prod
+      version:
+        description: 'Version à déployer (optionnel)'
+        required: false
+        default: 'latest'
+
+env:
+  DEPLOY_HOST: '10.194.32.238'
+  DEPLOY_USER: 'log430'
+  DEPLOY_PATH: '/home/log430/brokerx'
+
+jobs:
+  # Job pour le déploiement automatique en dev
+  deploy-dev:
+    name: Deploy to Development
+    runs-on: ubuntu-latest
+    if: |
+      github.event_name == 'workflow_run' && 
+      github.event.workflow_run.conclusion == 'success' &&
+      github.ref == 'refs/heads/main'
+    
+    environment:
+      name: development
+      url: http://10.194.32.238:8081
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ env.DEPLOY_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Build Application
+        run: |
+          chmod +x ./gradlew
+          ./gradlew clean build -x test --no-daemon
+
+      - name: Prepare Deployment Package
+        run: |
+          mkdir -p deploy-package
+          cp docker-compose.yml deploy-package/
+          cp -r nginx deploy-package/ 2>/dev/null || echo "Nginx config not found"
+          cp -r db-init deploy-package/ 2>/dev/null || echo "DB init not found"
+          
+          # Créer fichier .env pour dev
+          cat > deploy-package/.env << EOF
+          SPRING_PROFILES_ACTIVE=docker
+          SPRING_DATASOURCE_URL=jdbc:h2:file:/app/data/brokerx;DB_CLOSE_ON_EXIT=FALSE;AUTO_RECONNECT=TRUE
+          SPRING_DATASOURCE_USERNAME=brokerx
+          SPRING_DATASOURCE_PASSWORD=brokerx
+          SPRING_H2_CONSOLE_ENABLED=true
+          SPRING_JPA_HIBERNATE_DDL_AUTO=update
+          BROKERX_VERSION=${{ github.sha }}
+          EOF
+
+      - name: Deploy to Development Server
+        run: |
+          # Créer backup de la version actuelle
+          ssh ${{ env.DEPLOY_USER }}@${{ env.DEPLOY_HOST }} "
+            mkdir -p ${{ env.DEPLOY_PATH }}
+            if [ -d '${{ env.DEPLOY_PATH }}/current' ]; then
+              rm -rf ${{ env.DEPLOY_PATH }}/backup 2>/dev/null || true
+              mv ${{ env.DEPLOY_PATH }}/current ${{ env.DEPLOY_PATH }}/backup
+            fi
+          "
+          
+          # Copier les nouveaux fichiers
+          scp -r deploy-package ${{ env.DEPLOY_USER }}@${{ env.DEPLOY_HOST }}:${{ env.DEPLOY_PATH }}/current
+          
+          # Déployer
+          ssh ${{ env.DEPLOY_USER }}@${{ env.DEPLOY_HOST }} "
+            cd ${{ env.DEPLOY_PATH }}/current
+            docker-compose down --remove-orphans 2>/dev/null || true
+            docker-compose up -d brokerx-web
+          "
+
+      - name: Health Check
+        run: |
+          echo "Attente du démarrage de l'application..."
+          sleep 30
+          
+          # Vérifier que l'application répond
+          for i in {1..10}; do
+            if ssh ${{ env.DEPLOY_USER }}@${{ env.DEPLOY_HOST }} "curl -f http://localhost:8081/actuator/health"; then
+              echo "Application deployed successfully!"
+              exit 0
+            fi
+            echo "Tentative $i/10 - En attente..."
+            sleep 10
+          done
+          
+          echo "Health check failed"
+          exit 1
+
+      - name: Deployment Summary
+        if: always()
+        run: |
+          ssh ${{ env.DEPLOY_USER }}@${{ env.DEPLOY_HOST }} "
+            echo '=== Deployment Summary ==='
+            echo 'Environment: Development'
+            echo 'Version: ${{ github.sha }}'
+            echo 'Branch: ${{ github.ref_name }}'
+            echo 'Deployed by: ${{ github.actor }}'
+            echo 'Timestamp: $(date)'
+            echo
+            echo '=== Container Status ==='
+            cd ${{ env.DEPLOY_PATH }}/current && docker-compose ps
+          "
+
+  # Job pour le déploiement manuel en production
+  deploy-prod:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'prod'
+    
+    environment:
+      name: production
+      url: http://10.194.32.238
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ env.DEPLOY_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Build Application
+        run: |
+          chmod +x ./gradlew
+          ./gradlew clean build -x test --no-daemon
+
+      - name: Prepare Production Package
+        run: |
+          mkdir -p deploy-package
+          cp docker-compose.yml deploy-package/
+          cp -r nginx deploy-package/
+          cp -r db-init deploy-package/ 2>/dev/null || echo "DB init not found"
+          
+          # Créer fichier .env pour production
+          cat > deploy-package/.env << EOF
+          SPRING_PROFILES_ACTIVE=production
+          SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/brokerx_db
+          SPRING_DATASOURCE_USERNAME=brokerx_user
+          SPRING_DATASOURCE_PASSWORD=${{ secrets.MYSQL_PASSWORD }}
+          SPRING_H2_CONSOLE_ENABLED=false
+          SPRING_JPA_HIBERNATE_DDL_AUTO=update
+          MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}
+          MYSQL_DATABASE=brokerx_db
+          MYSQL_USER=brokerx_user
+          MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}
+          BROKERX_VERSION=${{ github.event.inputs.version }}
+          EOF
+
+      - name: Deploy to Production Server
+        run: |
+          # Créer backup
+          ssh ${{ env.DEPLOY_USER }}@${{ env.DEPLOY_HOST }} "
+            mkdir -p ${{ env.DEPLOY_PATH }}
+            if [ -d '${{ env.DEPLOY_PATH }}/current' ]; then
+              rm -rf ${{ env.DEPLOY_PATH }}/backup 2>/dev/null || true
+              mv ${{ env.DEPLOY_PATH }}/current ${{ env.DEPLOY_PATH }}/backup
+            fi
+          "
+          
+          # Copier et déployer
+          scp -r deploy-package ${{ env.DEPLOY_USER }}@${{ env.DEPLOY_HOST }}:${{ env.DEPLOY_PATH }}/current
+          
+          ssh ${{ env.DEPLOY_USER }}@${{ env.DEPLOY_HOST }} "
+            cd ${{ env.DEPLOY_PATH }}/current
+            docker-compose --profile production down --remove-orphans 2>/dev/null || true
+            docker-compose --profile production pull
+            docker-compose --profile production up -d
+          "
+
+      - name: Production Health Check
+        run: |
+          echo "Attente du démarrage en production..."
+          sleep 60
+          
+          for i in {1..15}; do
+            if ssh ${{ env.DEPLOY_USER }}@${{ env.DEPLOY_HOST }} "curl -f http://localhost/health"; then
+              echo "Production deployment successful!"
+              exit 0
+            fi
+            echo "Tentative $i/15 - En attente..."
+            sleep 20
+          done
+          
+          echo "Production health check failed"
+          exit 1
+
+  # Job pour déploiement manuel en dev
+  deploy-dev-manual:
+    name: Manual Deploy to Development
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'dev'
+    
+    environment:
+      name: development
+      url: http://10.194.32.238:8081
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ env.DEPLOY_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy using script
+        run: |
+          chmod +x ./deploy.sh
+          ./deploy.sh dev ${{ github.event.inputs.version }}
+
+  # Job de rollback
+  rollback:
+    name: Rollback
+    runs-on: ubuntu-latest
+    if: failure() && (contains(github.event_name, 'workflow_dispatch'))
+    needs: [deploy-prod, deploy-dev-manual]
+    
+    environment:
+      name: ${{ github.event.inputs.environment }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ env.DEPLOY_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Execute Rollback
+        run: |
+          chmod +x ./deploy.sh
+          ./deploy.sh --rollback

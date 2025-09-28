@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="UC-02: Tests d'authentification et MFA" tests="7" skipped="0" failures="0" errors="0" timestamp="2025-09-28T19:13:52" hostname="MONICAD" time="0.392">
+<testsuite name="UC-02: Tests d'authentification et MFA" tests="7" skipped="0" failures="0" errors="0" timestamp="2025-09-28T19:36:47" hostname="MONICAD" time="0.395">
   <properties/>
-  <testcase name="UC-02.6: Vérification autorisation connexion" classname="brokerx.BrokerXApplicationTest$AuthentificationMfaTests" time="0.048"/>
-  <testcase name="UC-02.7: Enregistrement tentative de connexion" classname="brokerx.BrokerXApplicationTest$AuthentificationMfaTests" time="0.06"/>
-  <testcase name="UC-02.4: Activation MFA SMS" classname="brokerx.BrokerXApplicationTest$AuthentificationMfaTests" time="0.054"/>
-  <testcase name="UC-02.3: Configuration MFA pour un client" classname="brokerx.BrokerXApplicationTest$AuthentificationMfaTests" time="0.04"/>
-  <testcase name="UC-02.1: Recherche client par email" classname="brokerx.BrokerXApplicationTest$AuthentificationMfaTests" time="0.034"/>
-  <testcase name="UC-02.2: Vérification existence email et téléphone" classname="brokerx.BrokerXApplicationTest$AuthentificationMfaTests" time="0.045"/>
-  <testcase name="UC-02.5: Génération et validation code SMS OTP" classname="brokerx.BrokerXApplicationTest$AuthentificationMfaTests" time="0.076"/>
-  <system-out><![CDATA[2025-09-28T15:13:52.561-04:00  INFO 21572 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [brokerx.BrokerXApplicationTest$AuthentificationMfaTests]: AuthentificationMfaTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
-2025-09-28T15:13:52.567-04:00  INFO 21572 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration brokerx.BrokerXWebApplication for test class brokerx.BrokerXApplicationTest$AuthentificationMfaTests
+  <testcase name="UC-02.6: Vérification autorisation connexion" classname="brokerx.BrokerXApplicationTest$AuthentificationMfaTests" time="0.061"/>
+  <testcase name="UC-02.7: Enregistrement tentative de connexion" classname="brokerx.BrokerXApplicationTest$AuthentificationMfaTests" time="0.059"/>
+  <testcase name="UC-02.4: Activation MFA SMS" classname="brokerx.BrokerXApplicationTest$AuthentificationMfaTests" time="0.045"/>
+  <testcase name="UC-02.3: Configuration MFA pour un client" classname="brokerx.BrokerXApplicationTest$AuthentificationMfaTests" time="0.044"/>
+  <testcase name="UC-02.1: Recherche client par email" classname="brokerx.BrokerXApplicationTest$AuthentificationMfaTests" time="0.036"/>
+  <testcase name="UC-02.2: Vérification existence email et téléphone" classname="brokerx.BrokerXApplicationTest$AuthentificationMfaTests" time="0.04"/>
+  <testcase name="UC-02.5: Génération et validation code SMS OTP" classname="brokerx.BrokerXApplicationTest$AuthentificationMfaTests" time="0.078"/>
+  <system-out><![CDATA[2025-09-28T15:36:47.343-04:00  INFO 10772 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [brokerx.BrokerXApplicationTest$AuthentificationMfaTests]: AuthentificationMfaTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2025-09-28T15:36:47.359-04:00  INFO 10772 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration brokerx.BrokerXWebApplication for test class brokerx.BrokerXApplicationTest$AuthentificationMfaTests
 UC-02 Step 2 - Verification securite pour IP: 192.168.1.100 | Email: test@brokerx.com
 SECURITE - Connexion autorisee pour IP: 192.168.1.100 | Email: test@brokerx.com
 AUDIT - Tentative REUSSIE enregistree: IP=192.168.1.100 | Email=test@brokerx.com | Raison=Connexion réussie
@@ -23,9 +23,9 @@ Bonjour Jean,
 Bienvenue sur BrokerX ! Pour finaliser votre inscription,
 veuillez verifier votre adresse email en cliquant sur le lien ci-dessous :
 
-LIEN: http://localhost:8080/verification-email?code=604785
+LIEN: http://localhost:8080/verification-email?code=913957
 
-Ou saisissez ce code de verification : 604785
+Ou saisissez ce code de verification : 913957
 
 Ce lien est valide pendant 24 heures.
 
@@ -38,13 +38,13 @@ A: +15141234567
 Bonjour Jean,
 
 Votre code de verification BrokerX :
-CODE: 4751
+CODE: 0359
 
 Ce code expire dans 10 minutes.
 ===============
 Client cree avec succes - ID: 2
-Code email: 604785
-Code OTP: 4751
+Code email: 913957
+Code OTP: 0359
 === EMAIL DE VERIFICATION ===
 A: test@brokerx.com
 Objet: BrokerX - Verifiez votre adresse email
@@ -54,9 +54,9 @@ Bonjour Jean,
 Bienvenue sur BrokerX ! Pour finaliser votre inscription,
 veuillez verifier votre adresse email en cliquant sur le lien ci-dessous :
 
-LIEN: http://localhost:8080/verification-email?code=979264
+LIEN: http://localhost:8080/verification-email?code=230732
 
-Ou saisissez ce code de verification : 979264
+Ou saisissez ce code de verification : 230732
 
 Ce lien est valide pendant 24 heures.
 
@@ -69,13 +69,13 @@ A: +15141234567
 Bonjour Jean,
 
 Votre code de verification BrokerX :
-CODE: 3086
+CODE: 2739
 
 Ce code expire dans 10 minutes.
 ===============
 Client cree avec succes - ID: 3
-Code email: 979264
-Code OTP: 3086
+Code email: 230732
+Code OTP: 2739
 === EMAIL DE VERIFICATION ===
 A: test@brokerx.com
 Objet: BrokerX - Verifiez votre adresse email
@@ -85,9 +85,9 @@ Bonjour Jean,
 Bienvenue sur BrokerX ! Pour finaliser votre inscription,
 veuillez verifier votre adresse email en cliquant sur le lien ci-dessous :
 
-LIEN: http://localhost:8080/verification-email?code=191658
+LIEN: http://localhost:8080/verification-email?code=455531
 
-Ou saisissez ce code de verification : 191658
+Ou saisissez ce code de verification : 455531
 
 Ce lien est valide pendant 24 heures.
 
@@ -100,13 +100,13 @@ A: +15141234567
 Bonjour Jean,
 
 Votre code de verification BrokerX :
-CODE: 9433
+CODE: 7002
 
 Ce code expire dans 10 minutes.
 ===============
 Client cree avec succes - ID: 4
-Code email: 191658
-Code OTP: 9433
+Code email: 455531
+Code OTP: 7002
 === EMAIL DE VERIFICATION ===
 A: test@brokerx.com
 Objet: BrokerX - Verifiez votre adresse email
@@ -116,9 +116,9 @@ Bonjour Jean,
 Bienvenue sur BrokerX ! Pour finaliser votre inscription,
 veuillez verifier votre adresse email en cliquant sur le lien ci-dessous :
 
-LIEN: http://localhost:8080/verification-email?code=351042
+LIEN: http://localhost:8080/verification-email?code=251488
 
-Ou saisissez ce code de verification : 351042
+Ou saisissez ce code de verification : 251488
 
 Ce lien est valide pendant 24 heures.
 
@@ -131,13 +131,13 @@ A: +15141234567
 Bonjour Jean,
 
 Votre code de verification BrokerX :
-CODE: 8415
+CODE: 9004
 
 Ce code expire dans 10 minutes.
 ===============
 Client cree avec succes - ID: 5
-Code email: 351042
-Code OTP: 8415
+Code email: 251488
+Code OTP: 9004
 === EMAIL DE VERIFICATION ===
 A: test@brokerx.com
 Objet: BrokerX - Verifiez votre adresse email
@@ -147,9 +147,9 @@ Bonjour Jean,
 Bienvenue sur BrokerX ! Pour finaliser votre inscription,
 veuillez verifier votre adresse email en cliquant sur le lien ci-dessous :
 
-LIEN: http://localhost:8080/verification-email?code=855650
+LIEN: http://localhost:8080/verification-email?code=743516
 
-Ou saisissez ce code de verification : 855650
+Ou saisissez ce code de verification : 743516
 
 Ce lien est valide pendant 24 heures.
 
@@ -162,18 +162,18 @@ A: +15141234567
 Bonjour Jean,
 
 Votre code de verification BrokerX :
-CODE: 8145
+CODE: 7138
 
 Ce code expire dans 10 minutes.
 ===============
 Client cree avec succes - ID: 6
-Code email: 855650
-Code OTP: 8145
+Code email: 743516
+Code OTP: 7138
 === SMS MFA OTP ===
 A: 5141234567
 ---
 BrokerX - Code de verification:
-CODE: 789588
+CODE: 020808
 Ce code expire dans 10 minutes.
 ===================
 UC-02 Step 3 - Code SMS genere pour: test@brokerx.com
