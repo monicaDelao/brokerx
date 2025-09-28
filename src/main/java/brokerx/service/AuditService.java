@@ -27,14 +27,14 @@ public class AuditService {
         
         // Journalisation dans la console (en production, utiliser un vrai système de logging)
         System.out.println("=== AUDIT D'ACTIVATION DE COMPTE ===");
-        System.out.println("🔍 ID Audit: " + auditId);
-        System.out.println("📧 Email: " + email);
-        System.out.println("⚡ Action: " + actionType);
-        System.out.println("🕐 Horodatage: " + timestamp.format(AUDIT_DATE_FORMAT));
-        System.out.println("🔐 Empreinte documents: " + empreinteDocuments);
-        System.out.println("📝 Détails: " + details);
-        System.out.println("✅ Statut: SUCCÈS");
-        System.out.println("=====================================");
+        System.out.println("ID Audit: " + auditId);
+        System.out.println("Email: " + email);
+        System.out.println("Action: " + actionType);
+        System.out.println("Horodatage: " + timestamp.format(AUDIT_DATE_FORMAT));
+        System.out.println("Empreinte documents: " + empreinteDocuments);
+        System.out.println("Details: " + details);
+        System.out.println("Statut: SUCCES");
+        System.out.println("====================================");
         
         return auditId;
     }
@@ -84,12 +84,12 @@ public class AuditService {
         String empreinte = genererEmpreinteDocuments(email, "VERIFICATION_EMAIL", 
                                                    "Code: " + codeVerification + " | Succès: " + succes, timestamp);
         
-        System.out.println("=== AUDIT VÉRIFICATION EMAIL ===");
-        System.out.println("📧 Email: " + email);
-        System.out.println("🔑 Code vérifié: " + codeVerification);
-        System.out.println("🕐 Horodatage: " + timestamp.format(AUDIT_DATE_FORMAT));
-        System.out.println("🔐 Empreinte: " + empreinte);
-        System.out.println("✅ Résultat: " + (succes ? "SUCCÈS" : "ÉCHEC"));
+        System.out.println("=== AUDIT VERIFICATION EMAIL ===");
+        System.out.println("Email: " + email);
+        System.out.println("Code verifie: " + codeVerification);
+        System.out.println("Horodatage: " + timestamp.format(AUDIT_DATE_FORMAT));
+        System.out.println("Empreinte: " + empreinte);
+        System.out.println("Resultat: " + (succes ? "SUCCES" : "ECHEC"));
         System.out.println("================================");
     }
 }

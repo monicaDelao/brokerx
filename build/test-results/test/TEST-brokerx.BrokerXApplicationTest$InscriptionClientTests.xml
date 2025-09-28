@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="UC-01: Tests d'inscription client" tests="5" skipped="0" failures="0" errors="0" timestamp="2025-09-28T19:13:52" hostname="MONICAD" time="0.268">
+  <properties/>
+  <testcase name="UC-01.5: Validation des données client" classname="brokerx.BrokerXApplicationTest$InscriptionClientTests" time="0.018"/>
+  <testcase name="UC-01.2: Rejet d'inscription avec email déjà existant" classname="brokerx.BrokerXApplicationTest$InscriptionClientTests" time="0.03"/>
+  <testcase name="UC-01.3: Rejet d'inscription avec téléphone déjà existant" classname="brokerx.BrokerXApplicationTest$InscriptionClientTests" time="0.117"/>
+  <testcase name="UC-01.4: Vérification des méthodes utilitaires de Client" classname="brokerx.BrokerXApplicationTest$InscriptionClientTests" time="0.042"/>
+  <testcase name="UC-01.1: Création d'un client avec données valides" classname="brokerx.BrokerXApplicationTest$InscriptionClientTests" time="0.029"/>
+  <system-out><![CDATA[2025-09-28T15:13:52.980-04:00  INFO 21572 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [brokerx.BrokerXApplicationTest$InscriptionClientTests]: InscriptionClientTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2025-09-28T15:13:52.986-04:00  INFO 21572 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration brokerx.BrokerXWebApplication for test class brokerx.BrokerXApplicationTest$InscriptionClientTests
+=== EMAIL DE VERIFICATION ===
+A: test@brokerx.com
+Objet: BrokerX - Verifiez votre adresse email
+---
+Bonjour Jean,
+
+Bienvenue sur BrokerX ! Pour finaliser votre inscription,
+veuillez verifier votre adresse email en cliquant sur le lien ci-dessous :
+
+LIEN: http://localhost:8080/verification-email?code=977963
+
+Ou saisissez ce code de verification : 977963
+
+Ce lien est valide pendant 24 heures.
+
+Cordialement,
+L'equipe BrokerX
+=============================
+=== SMS OTP ===
+A: +15141234567
+---
+Bonjour Jean,
+
+Votre code de verification BrokerX :
+CODE: 2059
+
+Ce code expire dans 10 minutes.
+===============
+Client cree avec succes - ID: 7
+Code email: 977963
+Code OTP: 2059
+=== EMAIL DE VERIFICATION ===
+A: test@brokerx.com
+Objet: BrokerX - Verifiez votre adresse email
+---
+Bonjour Jean,
+
+Bienvenue sur BrokerX ! Pour finaliser votre inscription,
+veuillez verifier votre adresse email en cliquant sur le lien ci-dessous :
+
+LIEN: http://localhost:8080/verification-email?code=906208
+
+Ou saisissez ce code de verification : 906208
+
+Ce lien est valide pendant 24 heures.
+
+Cordialement,
+L'equipe BrokerX
+=============================
+=== SMS OTP ===
+A: +15141234567
+---
+Bonjour Jean,
+
+Votre code de verification BrokerX :
+CODE: 4395
+
+Ce code expire dans 10 minutes.
+===============
+Client cree avec succes - ID: 8
+Code email: 906208
+Code OTP: 4395
+=== EMAIL DE VERIFICATION ===
+A: test@brokerx.com
+Objet: BrokerX - Verifiez votre adresse email
+---
+Bonjour Jean,
+
+Bienvenue sur BrokerX ! Pour finaliser votre inscription,
+veuillez verifier votre adresse email en cliquant sur le lien ci-dessous :
+
+LIEN: http://localhost:8080/verification-email?code=507667
+
+Ou saisissez ce code de verification : 507667
+
+Ce lien est valide pendant 24 heures.
+
+Cordialement,
+L'equipe BrokerX
+=============================
+=== SMS OTP ===
+A: +15141234567
+---
+Bonjour Jean,
+
+Votre code de verification BrokerX :
+CODE: 9924
+
+Ce code expire dans 10 minutes.
+===============
+Client cree avec succes - ID: 9
+Code email: 507667
+Code OTP: 9924
+=== EMAIL DE VERIFICATION ===
+A: test@brokerx.com
+Objet: BrokerX - Verifiez votre adresse email
+---
+Bonjour Jean,
+
+Bienvenue sur BrokerX ! Pour finaliser votre inscription,
+veuillez verifier votre adresse email en cliquant sur le lien ci-dessous :
+
+LIEN: http://localhost:8080/verification-email?code=811080
+
+Ou saisissez ce code de verification : 811080
+
+Ce lien est valide pendant 24 heures.
+
+Cordialement,
+L'equipe BrokerX
+=============================
+=== SMS OTP ===
+A: +15141234567
+---
+Bonjour Jean,
+
+Votre code de verification BrokerX :
+CODE: 7396
+
+Ce code expire dans 10 minutes.
+===============
+Client cree avec succes - ID: 10
+Code email: 811080
+Code OTP: 7396
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

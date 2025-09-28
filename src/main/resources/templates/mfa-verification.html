@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pageTitle}">Vérification MFA - BrokerX</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        .mfa-container {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+        }
+        
+        .mfa-form {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            padding: 2rem;
+            max-width: 450px;
+            width: 100%;
+        }
+        
+        .otp-input {
+            font-size: 1.5rem;
+            text-align: center;
+            letter-spacing: 0.5rem;
+            font-weight: 600;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .otp-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        
+        .method-badge {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 25px;
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            margin: 0.25rem;
+            display: inline-block;
+        }
+        
+        .timer {
+            font-weight: 600;
+            color: #dc3545;
+        }
+        
+        .masked-phone {
+            color: #6c757d;
+            font-family: monospace;
+        }
+        
+        .btn-mfa {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border: none;
+            border-radius: 25px;
+            padding: 0.75rem 2rem;
+            color: white;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-mfa:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+            color: white;
+        }
+        
+        .btn-secondary-mfa {
+            background: transparent;
+            border: 2px solid #6c757d;
+            border-radius: 25px;
+            padding: 0.5rem 1.5rem;
+            color: #6c757d;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary-mfa:hover {
+            background: #6c757d;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="mfa-container">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-12 col-md-6 col-lg-5">
+                    <div class="mfa-form">
+                        <!-- En-tête -->
+                        <div class="text-center mb-4">
+                            <i class="fas fa-shield-alt fa-3x text-primary mb-3"></i>
+                            <h2 class="h3 mb-2">Vérification supplémentaire</h2>
+                            <p class="text-muted">
+                                Saisissez le code de vérification pour <strong th:text="${email}">email</strong>
+                            </p>
+                        </div>
+
+                        <!-- Messages d'erreur/succès -->
+                        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <span th:text="${error}">Message d'erreur</span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+
+                        <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <span th:text="${success}">Message de succès</span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+
+                        <!-- Méthodes MFA disponibles -->
+                        <div class="mb-4">
+                            <h6 class="text-muted mb-3">Méthodes disponibles :</h6>
+                            <div class="text-center">
+                                <span th:if="${totpDisponible}" class="method-badge">
+                                    <i class="fas fa-mobile-alt me-1"></i> Application TOTP
+                                </span>
+                                <span th:if="${smsDisponible}" class="method-badge">
+                                    <i class="fas fa-sms me-1"></i> SMS <span th:text="${numeroTelephone}" class="masked-phone">***</span>
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Formulaire de saisie OTP -->
+                        <form method="post" th:action="@{/mfa-verification}">
+                            <input type="hidden" name="sessionMfaId" th:value="${sessionMfaId}">
+                            
+                            <div class="mb-4">
+                                <label for="codeOtp" class="form-label">Code de vérification</label>
+                                <input type="text" 
+                                       class="form-control otp-input" 
+                                       id="codeOtp" 
+                                       name="codeOtp" 
+                                       placeholder="000000"
+                                       maxlength="8"
+                                       pattern="[0-9]{6,8}"
+                                       required
+                                       autocomplete="one-time-code"
+                                       inputmode="numeric">
+                                <div class="form-text">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Saisissez le code reçu par SMS ou généré par votre application TOTP
+                                </div>
+                            </div>
+
+                            <!-- Timer de validité -->
+                            <div class="text-center mb-4">
+                                <div class="timer" id="countdown">
+                                    <i class="fas fa-clock me-1"></i>
+                                    Code valide pendant : <span id="time-remaining">10:00</span>
+                                </div>
+                            </div>
+
+                            <!-- Boutons d'action -->
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-mfa">
+                                    <i class="fas fa-unlock me-2"></i>
+                                    Vérifier le code
+                                </button>
+                            </div>
+                        </form>
+
+                        <!-- Option de renvoi SMS -->
+                        <div th:if="${smsDisponible}" class="text-center mt-4">
+                            <form method="post" th:action="@{/mfa-verification}" class="d-inline">
+                                <input type="hidden" name="sessionMfaId" th:value="${sessionMfaId}">
+                                <input type="hidden" name="action" value="renvoyer-sms">
+                                <input type="hidden" name="codeOtp" value="">
+                                
+                                <button type="submit" class="btn btn-secondary-mfa btn-sm">
+                                    <i class="fas fa-redo me-1"></i>
+                                    Renvoyer le code SMS
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Lien de retour -->
+                        <div class="text-center mt-4">
+                            <a href="/connexion" class="text-muted text-decoration-none">
+                                <i class="fas fa-arrow-left me-1"></i>
+                                Retour à la connexion
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Script pour la gestion du timer et UX -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const codeInput = document.getElementById('codeOtp');
+            const timeRemaining = document.getElementById('time-remaining');
+            
+            // Focus automatique sur le champ de saisie
+            codeInput.focus();
+            
+            // Timer pour l'expiration du code
+            let timeLeft = 10 * 60; // 10 minutes en secondes
+            
+            function updateTimer() {
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                timeRemaining.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                
+                if (timeLeft <= 0) {
+                    // Code expiré
+                    document.querySelector('.timer').innerHTML = 
+                        '<i class="fas fa-exclamation-triangle me-1"></i>Code expiré';
+                    document.querySelector('.timer').style.color = '#dc3545';
+                    codeInput.disabled = true;
+                    
+                    // Afficher message d'erreur
+                    const alertDiv = document.createElement('div');
+                    alertDiv.className = 'alert alert-warning mt-3';
+                    alertDiv.innerHTML = '<i class="fas fa-clock me-2"></i>Le code a expiré. Veuillez vous reconnecter.';
+                    codeInput.parentNode.appendChild(alertDiv);
+                    
+                    clearInterval(timerInterval);
+                } else {
+                    timeLeft--;
+                }
+            }
+            
+            // Démarrer le timer
+            const timerInterval = setInterval(updateTimer, 1000);
+            updateTimer(); // Première exécution immédiate
+            
+            // Formatage automatique du code OTP
+            codeInput.addEventListener('input', function(e) {
+                // Supprimer tout caractère non numérique
+                let value = e.target.value.replace(/\D/g, '');
+                
+                // Limiter à 8 chiffres maximum
+                if (value.length > 8) {
+                    value = value.slice(0, 8);
+                }
+                
+                e.target.value = value;
+                
+                // Soumission automatique si 6 ou 8 chiffres
+                if (value.length === 6 || value.length === 8) {
+                    // Petite pause pour permettre à l'utilisateur de voir le code complet
+                    setTimeout(() => {
+                        if (codeInput.value === value) {
+                            document.querySelector('form').submit();
+                        }
+                    }, 500);
+                }
+            });
+            
+            // Empêcher la saisie de caractères non numériques
+            codeInput.addEventListener('keypress', function(e) {
+                if (!/[0-9]/.test(e.key) && !['Backspace', 'Delete', 'Tab', 'Enter'].includes(e.key)) {
+                    e.preventDefault();
+                }
+            });
+            
+            // Sélectionner tout le texte au focus pour faciliter la correction
+            codeInput.addEventListener('focus', function() {
+                this.select();
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta http-equiv="x-ua-compatible" content="IE=edge"/>
+<title>Test results - UC-02: Tests d'authentification et MFA</title>
+<link href="../css/base-style.css" rel="stylesheet" type="text/css"/>
+<link href="../css/style.css" rel="stylesheet" type="text/css"/>
+<script src="../js/report.js" type="text/javascript"></script>
+</head>
+<body>
+<div id="content">
+<h1>UC-02: Tests d'authentification et MFA</h1>
+<div class="breadcrumbs">
+<a href="../index.html">all</a> &gt; 
+<a href="../packages/brokerx.html">brokerx</a> &gt; BrokerXApplicationTest$AuthentificationMfaTests</div>
+<div id="summary">
+<table>
+<tr>
+<td>
+<div class="summaryGroup">
+<table>
+<tr>
+<td>
+<div class="infoBox" id="tests">
+<div class="counter">7</div>
+<p>tests</p>
+</div>
+</td>
+<td>
+<div class="infoBox" id="failures">
+<div class="counter">0</div>
+<p>failures</p>
+</div>
+</td>
+<td>
+<div class="infoBox" id="ignored">
+<div class="counter">0</div>
+<p>ignored</p>
+</div>
+</td>
+<td>
+<div class="infoBox" id="duration">
+<div class="counter">0.357s</div>
+<p>duration</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</td>
+<td>
+<div class="infoBox success" id="successRate">
+<div class="percent">100%</div>
+<p>successful</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div id="tabs">
+<ul class="tabLinks">
+<li>
+<a href="#tab0">Tests</a>
+</li>
+<li>
+<a href="#tab1">Standard output</a>
+</li>
+</ul>
+<div id="tab0" class="tab">
+<h2>Tests</h2>
+<table>
+<thead>
+<tr>
+<th>Test</th>
+<th>Method name</th>
+<th>Duration</th>
+<th>Result</th>
+</tr>
+</thead>
+<tr>
+<td class="success">UC-02.4: Activation MFA SMS</td>
+<td class="success">testActivationMfaSms()</td>
+<td class="success">0.054s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">UC-02.3: Configuration MFA pour un client</td>
+<td class="success">testConfigurationMfaClient()</td>
+<td class="success">0.040s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">UC-02.7: Enregistrement tentative de connexion</td>
+<td class="success">testEnregistrementTentativeConnexion()</td>
+<td class="success">0.060s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">UC-02.5: Génération et validation code SMS OTP</td>
+<td class="success">testGenerationValidationCodeSmsOtp()</td>
+<td class="success">0.076s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">UC-02.1: Recherche client par email</td>
+<td class="success">testRechercheClientParEmail()</td>
+<td class="success">0.034s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">UC-02.6: Vérification autorisation connexion</td>
+<td class="success">testVerificationAutorisationConnexion()</td>
+<td class="success">0.048s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">UC-02.2: Vérification existence email et téléphone</td>
+<td class="success">testVerificationExistenceEmailTelephone()</td>
+<td class="success">0.045s</td>
+<td class="success">passed</td>
+</tr>
+</table>
+</div>
+<div id="tab1" class="tab">
+<h2>Standard output</h2>
+<span class="code">
+<pre>2025-09-28T15:13:52.561-04:00  INFO 21572 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [brokerx.BrokerXApplicationTest$AuthentificationMfaTests]: AuthentificationMfaTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2025-09-28T15:13:52.567-04:00  INFO 21572 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration brokerx.BrokerXWebApplication for test class brokerx.BrokerXApplicationTest$AuthentificationMfaTests
+UC-02 Step 2 - Verification securite pour IP: 192.168.1.100 | Email: test@brokerx.com
+SECURITE - Connexion autorisee pour IP: 192.168.1.100 | Email: test@brokerx.com
+AUDIT - Tentative REUSSIE enregistree: IP=192.168.1.100 | Email=test@brokerx.com | Raison=Connexion réussie
+AUDIT - Tentative ECHOUEE enregistree: IP=192.168.1.100 | Email=test@brokerx.com | Raison=Mot de passe incorrect
+=== EMAIL DE VERIFICATION ===
+A: test@brokerx.com
+Objet: BrokerX - Verifiez votre adresse email
+---
+Bonjour Jean,
+
+Bienvenue sur BrokerX ! Pour finaliser votre inscription,
+veuillez verifier votre adresse email en cliquant sur le lien ci-dessous :
+
+LIEN: http://localhost:8080/verification-email?code=604785
+
+Ou saisissez ce code de verification : 604785
+
+Ce lien est valide pendant 24 heures.
+
+Cordialement,
+L'equipe BrokerX
+=============================
+=== SMS OTP ===
+A: +15141234567
+---
+Bonjour Jean,
+
+Votre code de verification BrokerX :
+CODE: 4751
+
+Ce code expire dans 10 minutes.
+===============
+Client cree avec succes - ID: 2
+Code email: 604785
+Code OTP: 4751
+=== EMAIL DE VERIFICATION ===
+A: test@brokerx.com
+Objet: BrokerX - Verifiez votre adresse email
+---
+Bonjour Jean,
+
+Bienvenue sur BrokerX ! Pour finaliser votre inscription,
+veuillez verifier votre adresse email en cliquant sur le lien ci-dessous :
+
+LIEN: http://localhost:8080/verification-email?code=979264
+
+Ou saisissez ce code de verification : 979264
+
+Ce lien est valide pendant 24 heures.
+
+Cordialement,
+L'equipe BrokerX
+=============================
+=== SMS OTP ===
+A: +15141234567
+---
+Bonjour Jean,
+
+Votre code de verification BrokerX :
+CODE: 3086
+
+Ce code expire dans 10 minutes.
+===============
+Client cree avec succes - ID: 3
+Code email: 979264
+Code OTP: 3086
+=== EMAIL DE VERIFICATION ===
+A: test@brokerx.com
+Objet: BrokerX - Verifiez votre adresse email
+---
+Bonjour Jean,
+
+Bienvenue sur BrokerX ! Pour finaliser votre inscription,
+veuillez verifier votre adresse email en cliquant sur le lien ci-dessous :
+
+LIEN: http://localhost:8080/verification-email?code=191658
+
+Ou saisissez ce code de verification : 191658
+
+Ce lien est valide pendant 24 heures.
+
+Cordialement,
+L'equipe BrokerX
+=============================
+=== SMS OTP ===
+A: +15141234567
+---
+Bonjour Jean,
+
+Votre code de verification BrokerX :
+CODE: 9433
+
+Ce code expire dans 10 minutes.
+===============
+Client cree avec succes - ID: 4
+Code email: 191658
+Code OTP: 9433
+=== EMAIL DE VERIFICATION ===
+A: test@brokerx.com
+Objet: BrokerX - Verifiez votre adresse email
+---
+Bonjour Jean,
+
+Bienvenue sur BrokerX ! Pour finaliser votre inscription,
+veuillez verifier votre adresse email en cliquant sur le lien ci-dessous :
+
+LIEN: http://localhost:8080/verification-email?code=351042
+
+Ou saisissez ce code de verification : 351042
+
+Ce lien est valide pendant 24 heures.
+
+Cordialement,
+L'equipe BrokerX
+=============================
+=== SMS OTP ===
+A: +15141234567
+---
+Bonjour Jean,
+
+Votre code de verification BrokerX :
+CODE: 8415
+
+Ce code expire dans 10 minutes.
+===============
+Client cree avec succes - ID: 5
+Code email: 351042
+Code OTP: 8415
+=== EMAIL DE VERIFICATION ===
+A: test@brokerx.com
+Objet: BrokerX - Verifiez votre adresse email
+---
+Bonjour Jean,
+
+Bienvenue sur BrokerX ! Pour finaliser votre inscription,
+veuillez verifier votre adresse email en cliquant sur le lien ci-dessous :
+
+LIEN: http://localhost:8080/verification-email?code=855650
+
+Ou saisissez ce code de verification : 855650
+
+Ce lien est valide pendant 24 heures.
+
+Cordialement,
+L'equipe BrokerX
+=============================
+=== SMS OTP ===
+A: +15141234567
+---
+Bonjour Jean,
+
+Votre code de verification BrokerX :
+CODE: 8145
+
+Ce code expire dans 10 minutes.
+===============
+Client cree avec succes - ID: 6
+Code email: 855650
+Code OTP: 8145
+=== SMS MFA OTP ===
+A: 5141234567
+---
+BrokerX - Code de verification:
+CODE: 789588
+Ce code expire dans 10 minutes.
+===================
+UC-02 Step 3 - Code SMS genere pour: test@brokerx.com
+UC-02 Step 3 - Code SMS valide pour: test@brokerx.com
+UC-02 Step 3 - Code SMS invalide ou expire pour: test@brokerx.com
+</pre>
+</span>
+</div>
+</div>
+<div id="footer">
+<p>
+<div>
+<label class="hidden" id="label-for-line-wrapping-toggle" for="line-wrapping-toggle">Wrap lines
+<input id="line-wrapping-toggle" type="checkbox" autocomplete="off"/>
+</label>
+</div>Generated by 
+<a href="http://www.gradle.org">Gradle 8.10.2</a> at 28 sept. 2025, 15 h 13 min 53 s</p>
+</div>
+</div>
+</body>
+</html>

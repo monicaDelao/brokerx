@@ -155,25 +155,37 @@
             <div class="subtitle">Connexion à votre compte</div>
         </div>
         
-        <div class="info-box">
-            <h4>🚧 Fonctionnalité en développement</h4>
-            <p>La connexion sera implémentée dans les prochaines versions. 
-               Pour l'instant, vous pouvez tester le processus d'inscription UC-01.</p>
+        <!-- Messages d'erreur -->
+        <div th:if="${error}" class="error-box" style="background: #ffebee; border: 1px solid #f44336; border-radius: 10px; padding: 15px; margin-bottom: 20px; text-align: center;">
+            <div style="color: #d32f2f; font-weight: 600;" th:text="${error}">Message d'erreur</div>
         </div>
         
-        <form id="connexionForm">
+        <!-- Messages de succès -->
+        <div th:if="${message}" class="success-box" style="background: #e8f5e8; border: 1px solid #4caf50; border-radius: 10px; padding: 15px; margin-bottom: 20px; text-align: center;">
+            <div style="color: #2e7d32; font-weight: 600;" th:text="${message}">Message de succès</div>
+        </div>
+        
+        <form method="post" th:action="@{/connexion}">
             <div class="form-group">
-                <label for="email">Adresse email</label>
-                <input type="email" id="email" name="email" required placeholder="votre@email.com">
+                <label for="email">Adresse email *</label>
+                <input type="email" id="email" name="email" 
+                       th:value="${email}" 
+                       required 
+                       placeholder="votre@email.com"
+                       autocomplete="email">
             </div>
             
             <div class="form-group">
-                <label for="motDePasse">Mot de passe</label>
-                <input type="password" id="motDePasse" name="motDePasse" required placeholder="••••••••">
+                <label for="motDePasse">Mot de passe *</label>
+                <input type="password" id="motDePasse" name="motDePasse" 
+                       required 
+                       placeholder="Entrez votre mot de passe"
+                       autocomplete="current-password"
+                       minlength="8">
             </div>
             
             <button type="submit" class="submit-btn">
-                🔐 Se connecter
+                CONNEXION Se connecter
             </button>
         </form>
         
@@ -184,13 +196,36 @@
         </div>
     </div>
     
+    <!-- UC-02 Authentification - Formulaire fonctionnel -->
     <script>
-        document.getElementById('connexionForm').addEventListener('submit', function(e) {
-            e.preventDefault();
+        // Amélioration UX - Focus automatique sur le champ email
+        document.addEventListener('DOMContentLoaded', function() {
+            const emailField = document.getElementById('email');
+            if (emailField && !emailField.value) {
+                emailField.focus();
+            }
+        });
+        
+        // Validation côté client pour une meilleure UX
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('motDePasse').value;
             
-            alert('🚧 Fonctionnalité en développement\n\n' +
-                  'La connexion sera implémentée prochainement.\n' +
-                  'Pour l\'instant, vous pouvez tester l\'inscription UC-01 qui est pleinement fonctionnelle !');
+            if (!email || !password) {
+                e.preventDefault();
+                alert('Veuillez remplir tous les champs obligatoires.');
+                return false;
+            }
+            
+            if (password.length < 8) {
+                e.preventDefault();
+                alert('Le mot de passe doit contenir au moins 8 caractères.');
+                return false;
+            }
+            
+            // Log pour debug (UC-02 Step 1)
+            console.log('UC-02 Step 1: Client saisit identifiant/mot de passe');
+            console.log('Email:', email);
         });
     </script>
 </body>

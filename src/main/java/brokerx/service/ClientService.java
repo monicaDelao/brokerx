@@ -73,9 +73,9 @@ public class ClientService {
             );
         }
         
-        System.out.println("✅ Client créé avec succès - ID: " + clientSauvegarde.getId());
-        System.out.println("📧 Code email: " + codeEmail);
-        System.out.println("📱 Code OTP: " + codeOTP);
+        System.out.println("Client cree avec succes - ID: " + clientSauvegarde.getId());
+        System.out.println("Code email: " + codeEmail);
+        System.out.println("Code OTP: " + codeOTP);
         
         return new CreationResult(clientSauvegarde, codeEmail, codeOTP);
     }
@@ -141,7 +141,7 @@ public class ClientService {
                 ", Statut: " + clientActive.getStatusInscription()
             );
             
-            System.out.println("🎉 COMPTE ACTIVÉ avec audit - Email: " + email + " | Audit ID: " + auditId);
+            System.out.println("COMPTE ACTIVE avec audit - Email: " + email + " | Audit ID: " + auditId);
             return auditId;
         }
         return null;

@@ -1,6 +1,6 @@
 @startuml
-' Titre du diagramme
-title Diagramme de Déploiement - BrokerX (Phase 1 - Monolithique)
+' Titre du diagramme  
+title Architecture de Déploiement - Fondations Monolithiques BrokerX
 
 ' Apparence du diagramme
 skinparam node {
@@ -22,12 +22,18 @@ node "Machine Virtuelle (VM)" as VM {
         
         ' Conteneur de l'application BrokerX
         node "Conteneur Application" as AppContainer {
-            artifact "brokerx-monolith.jar" as AppArtifact <<artifact>>
+            artifact "brokerx-0.0.1-SNAPSHOT.jar" as AppArtifact <<artifact>>
+            note bottom of AppArtifact
+              Monolithe Spring Boot
+              Architecture en couches claire
+              Fondations évolutives pour UC-01,02,05
+              Séparation Presentation/Service/Domain/Data
+            end note
         }
         
         ' Conteneur de la base de données
         node "Conteneur Base de Données" as DBContainer {
-            artifact "PostgreSQL" as DBArtifact <<artifact>>
+            artifact "H2 Database" as DBArtifact <<artifact>>
         }
         
         ' Réseau interne Docker

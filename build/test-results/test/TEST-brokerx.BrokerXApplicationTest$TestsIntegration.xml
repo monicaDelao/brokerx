@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="Tests d'intégration" tests="1" skipped="0" failures="0" errors="0" timestamp="2025-09-28T19:13:51" hostname="MONICAD" time="0.928">
+  <properties/>
+  <testcase name="Intégration complète: Inscription puis authentification avec MFA" classname="brokerx.BrokerXApplicationTest$TestsIntegration" time="0.928"/>
+  <system-out><![CDATA[2025-09-28T15:13:51.555-04:00  INFO 21572 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [brokerx.BrokerXApplicationTest$TestsIntegration]: TestsIntegration does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2025-09-28T15:13:51.573-04:00  INFO 21572 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration brokerx.BrokerXWebApplication for test class brokerx.BrokerXApplicationTest$TestsIntegration
+=== EMAIL DE VERIFICATION ===
+A: test@brokerx.com
+Objet: BrokerX - Verifiez votre adresse email
+---
+Bonjour Jean,
+
+Bienvenue sur BrokerX ! Pour finaliser votre inscription,
+veuillez verifier votre adresse email en cliquant sur le lien ci-dessous :
+
+LIEN: http://localhost:8080/verification-email?code=276805
+
+Ou saisissez ce code de verification : 276805
+
+Ce lien est valide pendant 24 heures.
+
+Cordialement,
+L'equipe BrokerX
+=============================
+=== SMS OTP ===
+A: +15141234567
+---
+Bonjour Jean,
+
+Votre code de verification BrokerX :
+CODE: 3538
+
+Ce code expire dans 10 minutes.
+===============
+Client cree avec succes - ID: 1
+Code email: 276805
+Code OTP: 3538
+=== SMS MFA OTP ===
+A: 5141234567
+---
+BrokerX - Code de verification:
+CODE: 861712
+Ce code expire dans 10 minutes.
+===================
+UC-02 Step 3 - Code SMS genere pour: test@brokerx.com
+UC-02 Step 3 - Code SMS valide pour: test@brokerx.com
+AUDIT - Tentative REUSSIE enregistree: IP=192.168.1.100 | Email=test@brokerx.com | Raison=Authentification complète avec MFA
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

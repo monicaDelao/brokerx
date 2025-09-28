@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta http-equiv="x-ua-compatible" content="IE=edge"/>
+<title>Test results - UC-01: Tests d'inscription client</title>
+<link href="../css/base-style.css" rel="stylesheet" type="text/css"/>
+<link href="../css/style.css" rel="stylesheet" type="text/css"/>
+<script src="../js/report.js" type="text/javascript"></script>
+</head>
+<body>
+<div id="content">
+<h1>UC-01: Tests d'inscription client</h1>
+<div class="breadcrumbs">
+<a href="../index.html">all</a> &gt; 
+<a href="../packages/brokerx.html">brokerx</a> &gt; BrokerXApplicationTest$InscriptionClientTests</div>
+<div id="summary">
+<table>
+<tr>
+<td>
+<div class="summaryGroup">
+<table>
+<tr>
+<td>
+<div class="infoBox" id="tests">
+<div class="counter">5</div>
+<p>tests</p>
+</div>
+</td>
+<td>
+<div class="infoBox" id="failures">
+<div class="counter">0</div>
+<p>failures</p>
+</div>
+</td>
+<td>
+<div class="infoBox" id="ignored">
+<div class="counter">0</div>
+<p>ignored</p>
+</div>
+</td>
+<td>
+<div class="infoBox" id="duration">
+<div class="counter">0.236s</div>
+<p>duration</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</td>
+<td>
+<div class="infoBox success" id="successRate">
+<div class="percent">100%</div>
+<p>successful</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div id="tabs">
+<ul class="tabLinks">
+<li>
+<a href="#tab0">Tests</a>
+</li>
+<li>
+<a href="#tab1">Standard output</a>
+</li>
+</ul>
+<div id="tab0" class="tab">
+<h2>Tests</h2>
+<table>
+<thead>
+<tr>
+<th>Test</th>
+<th>Method name</th>
+<th>Duration</th>
+<th>Result</th>
+</tr>
+</thead>
+<tr>
+<td class="success">UC-01.1: Création d'un client avec données valides</td>
+<td class="success">testCreationClientAvecDonneesValides()</td>
+<td class="success">0.029s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">UC-01.4: Vérification des méthodes utilitaires de Client</td>
+<td class="success">testMethodesUtilitairesClient()</td>
+<td class="success">0.042s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">UC-01.3: Rejet d'inscription avec téléphone déjà existant</td>
+<td class="success">testRejetInscriptionTelephoneExistant()</td>
+<td class="success">0.117s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">UC-01.2: Rejet d'inscription avec email déjà existant</td>
+<td class="success">testRejetsInscriptionEmailExistant()</td>
+<td class="success">0.030s</td>
+<td class="success">passed</td>
+</tr>
+<tr>
+<td class="success">UC-01.5: Validation des données client</td>
+<td class="success">testValidationDonneesClient()</td>
+<td class="success">0.018s</td>
+<td class="success">passed</td>
+</tr>
+</table>
+</div>
+<div id="tab1" class="tab">
+<h2>Standard output</h2>
+<span class="code">
+<pre>2025-09-28T15:13:52.980-04:00  INFO 21572 --- [    Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [brokerx.BrokerXApplicationTest$InscriptionClientTests]: InscriptionClientTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2025-09-28T15:13:52.986-04:00  INFO 21572 --- [    Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration brokerx.BrokerXWebApplication for test class brokerx.BrokerXApplicationTest$InscriptionClientTests
+=== EMAIL DE VERIFICATION ===
+A: test@brokerx.com
+Objet: BrokerX - Verifiez votre adresse email
+---
+Bonjour Jean,
+
+Bienvenue sur BrokerX ! Pour finaliser votre inscription,
+veuillez verifier votre adresse email en cliquant sur le lien ci-dessous :
+
+LIEN: http://localhost:8080/verification-email?code=977963
+
+Ou saisissez ce code de verification : 977963
+
+Ce lien est valide pendant 24 heures.
+
+Cordialement,
+L'equipe BrokerX
+=============================
+=== SMS OTP ===
+A: +15141234567
+---
+Bonjour Jean,
+
+Votre code de verification BrokerX :
+CODE: 2059
+
+Ce code expire dans 10 minutes.
+===============
+Client cree avec succes - ID: 7
+Code email: 977963
+Code OTP: 2059
+=== EMAIL DE VERIFICATION ===
+A: test@brokerx.com
+Objet: BrokerX - Verifiez votre adresse email
+---
+Bonjour Jean,
+
+Bienvenue sur BrokerX ! Pour finaliser votre inscription,
+veuillez verifier votre adresse email en cliquant sur le lien ci-dessous :
+
+LIEN: http://localhost:8080/verification-email?code=906208
+
+Ou saisissez ce code de verification : 906208
+
+Ce lien est valide pendant 24 heures.
+
+Cordialement,
+L'equipe BrokerX
+=============================
+=== SMS OTP ===
+A: +15141234567
+---
+Bonjour Jean,
+
+Votre code de verification BrokerX :
+CODE: 4395
+
+Ce code expire dans 10 minutes.
+===============
+Client cree avec succes - ID: 8
+Code email: 906208
+Code OTP: 4395
+=== EMAIL DE VERIFICATION ===
+A: test@brokerx.com
+Objet: BrokerX - Verifiez votre adresse email
+---
+Bonjour Jean,
+
+Bienvenue sur BrokerX ! Pour finaliser votre inscription,
+veuillez verifier votre adresse email en cliquant sur le lien ci-dessous :
+
+LIEN: http://localhost:8080/verification-email?code=507667
+
+Ou saisissez ce code de verification : 507667
+
+Ce lien est valide pendant 24 heures.
+
+Cordialement,
+L'equipe BrokerX
+=============================
+=== SMS OTP ===
+A: +15141234567
+---
+Bonjour Jean,
+
+Votre code de verification BrokerX :
+CODE: 9924
+
+Ce code expire dans 10 minutes.
+===============
+Client cree avec succes - ID: 9
+Code email: 507667
+Code OTP: 9924
+=== EMAIL DE VERIFICATION ===
+A: test@brokerx.com
+Objet: BrokerX - Verifiez votre adresse email
+---
+Bonjour Jean,
+
+Bienvenue sur BrokerX ! Pour finaliser votre inscription,
+veuillez verifier votre adresse email en cliquant sur le lien ci-dessous :
+
+LIEN: http://localhost:8080/verification-email?code=811080
+
+Ou saisissez ce code de verification : 811080
+
+Ce lien est valide pendant 24 heures.
+
+Cordialement,
+L'equipe BrokerX
+=============================
+=== SMS OTP ===
+A: +15141234567
+---
+Bonjour Jean,
+
+Votre code de verification BrokerX :
+CODE: 7396
+
+Ce code expire dans 10 minutes.
+===============
+Client cree avec succes - ID: 10
+Code email: 811080
+Code OTP: 7396
+</pre>
+</span>
+</div>
+</div>
+<div id="footer">
+<p>
+<div>
+<label class="hidden" id="label-for-line-wrapping-toggle" for="line-wrapping-toggle">Wrap lines
+<input id="line-wrapping-toggle" type="checkbox" autocomplete="off"/>
+</label>
+</div>Generated by 
+<a href="http://www.gradle.org">Gradle 8.10.2</a> at 28 sept. 2025, 15 h 13 min 53 s</p>
+</div>
+</div>
+</body>
+</html>

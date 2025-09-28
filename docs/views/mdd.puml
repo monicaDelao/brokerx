@@ -34,14 +34,27 @@ enum DureeOrdre {
     IOC
 }
 
+enum TypeMfa {
+  SMS
+  TOTP
+  EMAIL
+  BACKUP
+}
+
 ' --- Définition des Classes (Entités du Domaine) ---
 
 class Client {
   ClientID
   Nom
-  Adresse
+  Prenom
   Email
-  MotDePasseHash 
+  Telephone
+  Adresse
+  DateNaissance
+  MotDePasseHash
+  DateInscription
+  EmailVerifie
+  TelephoneVerifie
 }
 
 class CompteDeCourtage {
@@ -67,11 +80,41 @@ class Ordre {
   HorodatageUTC
 }
 
+class MfaConfig {
+  ConfigID
+  MfaActive
+  MfaObligatoire
+  SmsActive
+  TotpActive
+  DateCreation
+}
+
+class MfaOtpCode {
+  CodeID
+  CodeOtp
+  TypeMfa
+  DateCreation
+  DateExpiration
+  Utilise
+}
+
+class TentativeConnexion {
+  TentativeID
+  Email
+  AdresseIP
+  TimestampTentative
+  TentativeReussie
+  RaisonEchec
+}
+
 ' --- Associations entre les Classes ---
 
 Client "1" -- "1" CompteDeCourtage : possède >
 Client "1" -- "1" Portefeuille : possède >
 Client "1" -- "0..*" Ordre : place >
+Client "1" -- "0..1" MfaConfig : configure >
+Client "1" -- "0..*" MfaOtpCode : génère >
+Client "1" -- "0..*" TentativeConnexion : initie >
 
 Portefeuille "1" -- "0..*" Position : contient >
 CompteDeCourtage "1" -- "0..*" Ordre : finance <
@@ -82,6 +125,7 @@ Ordre .. StatutOrdre
 Ordre .. SensOrdre
 Ordre .. TypeOrdre
 Ordre .. DureeOrdre
+MfaOtpCode .. TypeMfa
 
 
 @enduml

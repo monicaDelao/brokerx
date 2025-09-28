@@ -1,5 +1,7 @@
+version: '3.8'
+
 services:
-  # Application BrokerX Web Interface
+  # Application BrokerX Web Interface avec base H2 embarquée
   brokerx-web:
     build:
       context: .
@@ -7,54 +9,42 @@ services:
     container_name: brokerx-web
     environment:
       # Configuration application web
-      APP_ENV: "web"
+      SPRING_PROFILES_ACTIVE: "docker"
+      SERVER_PORT: "8081"
       LOG_LEVEL: "INFO"
-      JAVA_OPTS: "-Xmx256m -Xms128m -XX:+UseG1GC"
+      JAVA_OPTS: "-Xmx512m -Xms256m -XX:+UseG1GC"
       
-      # Configuration seed data
+      # Configuration H2 Database embarquée
+      SPRING_DATASOURCE_URL: "jdbc:h2:file:/app/data/brokerx;DB_CLOSE_ON_EXIT=FALSE;AUTO_RECONNECT=TRUE"
+      SPRING_DATASOURCE_USERNAME: "brokerx"
+      SPRING_DATASOURCE_PASSWORD: "brokerx"
+      SPRING_H2_CONSOLE_ENABLED: "true"
+      
+      # Seed data activé
       DB_SEED: "true"
     volumes:
-      - app_data:/app/data
-      - app_logs:/app/logs
+      - brokerx_data:/app/data
+      - brokerx_logs:/app/logs
     ports:
-      - "8080:8080"
+      - "8081:8081"  # Application web Spring Boot
     networks:
       - brokerx-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8081/actuator/health", "||", "exit", "1"]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 40s
-    restart: unless-stopped
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
-
-  # Console interactive pour UC-01 (mode développement)
-  brokerx-console:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: brokerx-console
-    depends_on:
-      postgres:
-        condition: service_healthy
-    environment:
-      DB_URL: "jdbc:postgresql://postgres:5432/brokerx"
-      DB_USER: "brokerx_user"
-      DB_PASSWORD: "brokerx_pass"
-      APP_ENV: "console"
-    ports:
-      - "8080:8080"
-    networks:
-      - brokerx-network
+      start_period: 60s
     restart: unless-stopped
 
-# Réseau pour l'application web
+# Volumes persistants pour les données
+volumes:
+  brokerx_data:
+    driver: local
+  brokerx_logs:
+    driver: local
+
+# Réseau pour la communication inter-services
 networks:
   brokerx-network:
     driver: bridge
-    name: brokerx-network

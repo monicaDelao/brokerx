@@ -20,23 +20,23 @@ public class NotificationService {
         // Simulation d'envoi d'email
         String lienVerification = "http://localhost:8080/verification-email?code=" + codeVerification;
         
-        System.out.println("=== EMAIL DE VÉRIFICATION ===");
-        System.out.println("À: " + email);
-        System.out.println("Objet: BrokerX - Vérifiez votre adresse email");
+        System.out.println("=== EMAIL DE VERIFICATION ===");
+        System.out.println("A: " + email);
+        System.out.println("Objet: BrokerX - Verifiez votre adresse email");
         System.out.println("---");
         System.out.println("Bonjour " + prenom + ",");
         System.out.println("");
         System.out.println("Bienvenue sur BrokerX ! Pour finaliser votre inscription,");
-        System.out.println("veuillez vérifier votre adresse email en cliquant sur le lien ci-dessous :");
+        System.out.println("veuillez verifier votre adresse email en cliquant sur le lien ci-dessous :");
         System.out.println("");
-        System.out.println("🔗 " + lienVerification);
+        System.out.println("LIEN: " + lienVerification);
         System.out.println("");
-        System.out.println("Ou saisissez ce code de vérification : " + codeVerification);
+        System.out.println("Ou saisissez ce code de verification : " + codeVerification);
         System.out.println("");
         System.out.println("Ce lien est valide pendant 24 heures.");
         System.out.println("");
         System.out.println("Cordialement,");
-        System.out.println("L'équipe BrokerX");
+        System.out.println("L'equipe BrokerX");
         System.out.println("=============================");
         
         // Simulation: toujours réussi en développement
@@ -52,18 +52,18 @@ public class NotificationService {
      */
     public boolean envoyerSMSOTP(String telephone, String codeOTP, String prenom) {
         if (telephone == null || telephone.trim().isEmpty()) {
-            System.out.println("⚠️ Pas de numéro de téléphone fourni - SMS non envoyé");
+            System.out.println("ATTENTION: Pas de numero de telephone fourni - SMS non envoye");
             return true; // Considéré comme succès car optionnel
         }
         
         // Simulation d'envoi de SMS
         System.out.println("=== SMS OTP ===");
-        System.out.println("À: +1" + telephone);
+        System.out.println("A: +1" + telephone);
         System.out.println("---");
         System.out.println("Bonjour " + prenom + ",");
         System.out.println("");
-        System.out.println("Votre code de vérification BrokerX :");
-        System.out.println("🔢 " + codeOTP);
+        System.out.println("Votre code de verification BrokerX :");
+        System.out.println("CODE: " + codeOTP);
         System.out.println("");
         System.out.println("Ce code expire dans 10 minutes.");
         System.out.println("===============");
@@ -80,19 +80,19 @@ public class NotificationService {
      */
     public boolean envoyerEmailBienvenue(String email, String prenom) {
         System.out.println("=== EMAIL DE BIENVENUE ===");
-        System.out.println("À: " + email);
+        System.out.println("A: " + email);
         System.out.println("Objet: Bienvenue sur BrokerX !");
         System.out.println("---");
-        System.out.println("Félicitations " + prenom + " ! 🎉");
+        System.out.println("Felicitations " + prenom + " ! SUCCES");
         System.out.println("");
-        System.out.println("Votre inscription sur BrokerX est maintenant complète.");
-        System.out.println("Vous pouvez désormais accéder à votre compte et commencer");
-        System.out.println("à utiliser nos services de courtage.");
+        System.out.println("Votre inscription sur BrokerX est maintenant complete.");
+        System.out.println("Vous pouvez desormais acceder a votre compte et commencer");
+        System.out.println("a utiliser nos services de courtage.");
         System.out.println("");
         System.out.println("Connexion: http://localhost:8080/connexion");
         System.out.println("");
         System.out.println("Merci de votre confiance !");
-        System.out.println("L'équipe BrokerX");
+        System.out.println("L'equipe BrokerX");
         System.out.println("==========================");
         
         return true;

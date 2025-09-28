@@ -23,7 +23,6 @@ client -- UC05
 ' --- Relations entre les cas d'utilisation (optionnel mais pertinent) ---
 
 ' Pour placer un ordre, il est impératif que le client soit authentifié.
-
 UC05 ..> UC02 : <<include>>
 
 @enduml
