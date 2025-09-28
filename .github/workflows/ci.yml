@@ -1,93 +1,256 @@
-﻿name: ci
+name: CI Pipeline
+
 on:
   push:
-    branches: [ main ]
+    branches: [ main, develop ]
   pull_request:
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
-permissions:
-  contents: read
-  packages: write
+    branches: [ main ]
 
 env:
-  REGISTRY: ghcr.io
-  IMAGE_TAG: latest
+  JAVA_VERSION: '21'
+  GRADLE_OPTS: '-Dorg.gradle.daemon=false'
 
 jobs:
-  build_and_test:
+  # Étape 1: Lint - Analyse statique du code
+  lint:
+    name: Code Quality Check
     runs-on: ubuntu-latest
+    timeout-minutes: 5
+    
     steps:
-      - uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'eclipse-temurin'
+        
+    - name: Cache Gradle dependencies
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: ${{ runner.os }}-gradle-
+          
+    - name: Make gradlew executable
+      run: chmod +x ./gradlew
+      
+    - name: Run Checkstyle
+      run: ./gradlew checkstyleMain checkstyleTest --no-daemon --continue
+      
+    - name: Run SpotBugs
+      run: ./gradlew spotbugsMain --no-daemon --continue
+      
+    - name: Upload lint reports
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: lint-reports
+        path: |
+          build/reports/checkstyle/
+          build/reports/spotbugs/
+        retention-days: 7
 
-      - name: Setup Java 21
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: "21"
-
-      - name: Setup Gradle 8.10.2
-        uses: gradle/gradle-build-action@v3
-        with:
-          gradle-version: 8.10.2
-
-      - name: Run tests
-        working-directory: app
-        run: gradle test --no-daemon
-
-  build_and_push_image:
-    needs: build_and_test
+  # Étape 2: Build - Compilation de l'application
+  build:
+    name: Build Application
     runs-on: ubuntu-latest
+    needs: lint
+    timeout-minutes: 5
+    
     steps:
-      - uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'eclipse-temurin'
+        
+    - name: Cache Gradle dependencies
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: ${{ runner.os }}-gradle-
+          
+    - name: Make gradlew executable
+      run: chmod +x ./gradlew
+      
+    - name: Compile main classes
+      run: ./gradlew compileJava --no-daemon
+      
+    - name: Compile test classes
+      run: ./gradlew compileTestJava --no-daemon
+      
+    - name: Build JAR
+      run: ./gradlew bootJar -x test --no-daemon
+      
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: application-jar
+        path: build/libs/*.jar
+        retention-days: 7
 
-      - name: Compute lowercase image name
-        run: echo "IMAGE_REF=${{ env.REGISTRY }}/${GITHUB_REPOSITORY,,}:${{ env.IMAGE_TAG }}" >> $GITHUB_ENV
+  # Étape 3: Tests unitaires
+  test-unit:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    needs: build
+    timeout-minutes: 8
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'eclipse-temurin'
+        
+    - name: Cache Gradle dependencies
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: ${{ runner.os }}-gradle-
+          
+    - name: Make gradlew executable
+      run: chmod +x ./gradlew
+      
+    - name: Run unit tests
+      run: ./gradlew test --no-daemon --continue
+      
+    - name: Generate coverage report
+      run: ./gradlew jacocoTestReport --no-daemon
+      if: always()
+      
+    - name: Upload test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: test-results
+        path: |
+          build/reports/tests/
+          build/reports/jacoco/
+        retention-days: 7
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+  # Étape 4: Tests E2E avec Docker
+  test-e2e:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+    needs: build
+    timeout-minutes: 10
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Build Docker image
+      run: docker build -t brokerx:test .
+      
+    - name: Start application
+      run: |
+        docker run -d --name brokerx-test \
+          -p 8080:8080 \
+          -e SPRING_PROFILES_ACTIVE=test \
+          brokerx:test
+          
+    - name: Wait for startup
+      run: |
+        timeout 60s bash -c 'until curl -f http://localhost:8080/actuator/health; do sleep 2; done'
+        
+    - name: Test health endpoint
+      run: curl -f http://localhost:8080/actuator/health
+        
+    - name: Get application logs
+      if: always()
+      run: docker logs brokerx-test
+      
+    - name: Cleanup
+      if: always()
+      run: docker rm -f brokerx-test || true
 
-      - name: Login to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build & push image
-        uses: docker/build-push-action@v6
-        with:
-          context: ./app
-          push: true
-          tags: ${{ env.IMAGE_REF }}
-  deploy_to_vm:
+  # Étape 5: Génération des artefacts
+  artifacts:
+    name: Build Production Artifacts
+    runs-on: ubuntu-latest
+    needs: [test-unit, test-e2e]
+    timeout-minutes: 10
     if: github.ref == 'refs/heads/main'
-    needs: build_and_push_image
-    runs-on: ubuntu-latest
+    
     steps:
-      - uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'eclipse-temurin'
+        
+    - name: Cache Gradle dependencies
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: ${{ runner.os }}-gradle-
+          
+    - name: Make gradlew executable
+      run: chmod +x ./gradlew
+      
+    - name: Generate version
+      id: version
+      run: echo "VERSION=1.0.0-${GITHUB_SHA::8}" >> $GITHUB_OUTPUT
+        
+    - name: Build production JAR
+      run: ./gradlew bootJar -Pversion=${{ steps.version.outputs.VERSION }} --no-daemon
+      
+    - name: Build Docker image
+      run: |
+        docker build -t brokerx:${{ steps.version.outputs.VERSION }} .
+        docker save brokerx:${{ steps.version.outputs.VERSION }} | gzip > brokerx-${{ steps.version.outputs.VERSION }}.tar.gz
+        
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: production-artifacts
+        path: |
+          build/libs/*.jar
+          brokerx-*.tar.gz
+        retention-days: 90
 
-      # Charge la clé privée depuis le secret SSH_KEY
-      - name: Start ssh-agent and add key
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ secrets.SSH_KEY }}
-          # ssh-passphrase: ${{ secrets.SSH_PASSPHRASE }}   # si ta clé a une passphrase
-
-      # (Optionnel) Smoke test SSH
-      - name: SSH smoke test
-        shell: bash
-        run: |
-          ssh -o StrictHostKeyChecking=accept-new \
-              "${{ secrets.VM_USER }}@${{ secrets.VM_HOST }}" \
-              'echo OK && hostname && whoami'
-
-      # Déploiement
-      - name: Remote deploy
-        shell: bash
-        run: |
-          ssh -o StrictHostKeyChecking=accept-new \
-              "${{ secrets.VM_USER }}@${{ secrets.VM_HOST }}" \
-              'cd /opt/brokerx && ./deploy.sh && docker compose -f docker-compose.prod.yml ps'
+  # Étape 6: Quality Gate finale
+  quality-gate:
+    name: Quality Gate
+    runs-on: ubuntu-latest
+    needs: [lint, test-unit, test-e2e]
+    if: always()
+    
+    steps:
+    - name: Check results
+      run: |
+        echo "Statuts des jobs:"
+        echo "  Lint: ${{ needs.lint.result }}"
+        echo "  Unit Tests: ${{ needs.test-unit.result }}"
+        echo "  E2E Tests: ${{ needs.test-e2e.result }}"
+        
+        if [ "${{ needs.lint.result }}" = "failure" ] || [ "${{ needs.test-unit.result }}" = "failure" ]; then
+          echo "Quality Gate FAILED"
+          exit 1
+        fi
+        
+        echo "Quality Gate PASSED"

@@ -3,6 +3,9 @@ plugins {
     id 'application'
     id 'org.springframework.boot' version '3.2.0'
     id 'io.spring.dependency-management' version '1.1.4'
+    id 'checkstyle'
+    id 'jacoco'
+    id 'com.github.spotbugs' version '6.0.7'
 }
 
 group = 'com.brokerx'
@@ -34,6 +37,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
     
     // Base de données locale H2
     runtimeOnly 'com.h2database:h2'
@@ -42,8 +46,113 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
-// Spring Boot se charge de créer le jar exécutable
+// Configuration des outils de qualité de code
+checkstyle {
+    toolVersion = '10.12.4'
+    configFile = file('config/checkstyle/checkstyle.xml')
+    ignoreFailures = false
+    maxWarnings = 0
+}
 
+spotbugs {
+    ignoreFailures = false
+}
+
+jacoco {
+    toolVersion = '0.8.11'
+}
+
+// Configuration JaCoCo pour la couverture de code
+jacocoTestReport {
+    dependsOn test
+    reports {
+        xml.required = true
+        html.required = true
+        csv.required = false
+    }
+    finalizedBy jacocoTestCoverageVerification
+}
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                minimum = 0.60 // 60% de couverture minimum
+            }
+        }
+    }
+}
+
+// Configuration des tests
+test {
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
+        exceptionFormat "full"
+    }
+    // Désactiver JaCoCo temporairement pour compatibility Java 21
+    // finalizedBy jacocoTestReport
+}
+
+// Configuration des tests d'intégration
+sourceSets {
+    integrationTest {
+        java {
+            compileClasspath += sourceSets.main.output
+            runtimeClasspath += sourceSets.main.output
+        }
+    }
+}
+
+configurations {
+    integrationTestImplementation.extendsFrom implementation
+    integrationTestRuntimeOnly.extendsFrom runtimeOnly
+}
+
+task integrationTest(type: Test) {
+    description = 'Runs integration tests.'
+    group = 'verification'
+    
+    testClassesDirs = sourceSets.integrationTest.output.classesDirs
+    classpath = sourceSets.integrationTest.runtimeClasspath
+    useJUnitPlatform()
+    
+    shouldRunAfter test
+    
+    testLogging {
+        events "passed", "skipped", "failed"
+        exceptionFormat "full"
+    }
+}
+
+// Configuration des tests E2E
+task e2eTest(type: Test) {
+    description = 'Runs end-to-end tests.'
+    group = 'verification'
+    
+    useJUnitPlatform {
+        includeTags 'e2e'
+    }
+    
+    shouldRunAfter integrationTest
+    
+    testLogging {
+        events "passed", "skipped", "failed"
+        exceptionFormat "full"
+    }
+}
+
+check.dependsOn integrationTest
+
+// Tâche de qualité globale
+task qualityCheck {
+    dependsOn check // Temporairement sans JaCoCo: , jacocoTestCoverageVerification
+    group = 'verification'
+    description = 'Exécute tous les contrôles qualité (tests, checkstyle, spotbugs)'
+}
+
+// Spring Boot se charge de créer le jar exécutable
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
+    options.compilerArgs += ['-Xlint:deprecation', '-Xlint:unchecked']
 }
