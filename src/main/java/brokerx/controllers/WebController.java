@@ -99,15 +99,7 @@ public class WebController {
                                    Model model,
                                    RedirectAttributes redirectAttributes) {
         
-        // Debug: afficher les valeurs reçues
-        System.out.println("DEBUG - Donnees recues:");
-        System.out.println("  - Prenom: " + client.getPrenom());
-        System.out.println("  - Nom: " + client.getNom());
-        System.out.println("  - Email: " + client.getEmail());
-        System.out.println("  - Telephone: " + client.getTelephone());
-        System.out.println("  - Date de naissance: " + client.getDateNaissance());
-        System.out.println("  - Adresse: " + client.getAdresse());
-        System.out.println("  - Erreurs: " + result.hasErrors());
+       
         if (result.hasErrors()) {
             System.out.println("  - Details erreurs: " + result.getAllErrors());
         }
@@ -274,7 +266,7 @@ public class WebController {
             return "verification-otp";
         }
         
-        // ✅ Code OTP validé avec succès
+       
         System.out.println("Verification OTP reussie pour: " + session.email + " avec code: " + codeVerification);
         clientService.marquerTelephoneVerifie(session.email);
         
